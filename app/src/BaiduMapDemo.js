@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import Dimensions from 'Dimensions';
+import { service } from './utils/service';
 
 export default class BaiduMapDemo extends Component {
 
@@ -47,6 +48,10 @@ export default class BaiduMapDemo extends Component {
     }
 
     componentDidMount() {
+
+        service.post('http://jpv1.library.sh.cn/wkl/webapi/building/dolist', { freetext: ''}).then(data=>{
+            console.log('data', data);
+        })
     }
 
     render() {
