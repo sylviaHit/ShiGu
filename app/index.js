@@ -10,13 +10,14 @@ import MarkerExample from './src/pages/examples/marker';
 import MultiPointExample from './src/pages/examples/multiPoint';
 import ControlsExample from './src/pages/examples/controls';
 import SliderEntry from './src/pages/examples/Slider';
+import MyCarousel from './src/pages/examples/SliderC';
 import { createStackNavigator } from 'react-navigation';
 
 const RootStack = createStackNavigator(
     {
         Home: { screen: HomePage },
         Poetry:{ screen: Poetry },
-        CultureMap:{ screen: SliderEntry },
+        CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
     },
     {

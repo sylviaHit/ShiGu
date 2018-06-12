@@ -6,14 +6,15 @@ import { ParallaxImage } from 'react-native-snap-carousel';
 export default class SliderEntry extends Component {
 
     static propTypes = {
-        data: PropTypes.object.isRequired,
+        data: PropTypes.object,
         even: PropTypes.bool,
         parallax: PropTypes.bool,
         parallaxProps: PropTypes.object
     };
 
     get image () {
-        const { data: { illustration }, parallax, parallaxProps, even } = this.props;
+        const { data, parallax, parallaxProps, even } = this.props;
+        let illustration = '../../images/guju28.jpg';
 
         return parallax ? (
             <ParallaxImage
@@ -34,7 +35,11 @@ export default class SliderEntry extends Component {
     }
 
     render () {
-        const { data: { title, subtitle }, even } = this.props;
+        console.log('this.props', this.props);
+        // const { data: { title, subtitle }, even } = this.props;
+        const { data, even } = this.props;
+        let title = 'title';
+        let subtitle = 'subtitle';
 
         const uppercaseTitle = title ? (
             <Text
