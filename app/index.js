@@ -9,13 +9,14 @@ import PointDetail from './src/pages/culture-map/PointDetail';
 import MarkerExample from './src/pages/examples/marker';
 import MultiPointExample from './src/pages/examples/multiPoint';
 import ControlsExample from './src/pages/examples/controls';
+import SliderEntry from './src/pages/examples/Slider';
 import { createStackNavigator } from 'react-navigation';
 
 const RootStack = createStackNavigator(
     {
         Home: { screen: HomePage },
         Poetry:{ screen: Poetry },
-        CultureMap:{ screen: CultureMap },
+        CultureMap:{ screen: SliderEntry },
         PointDetail: { screen: PointDetail },
     },
     {

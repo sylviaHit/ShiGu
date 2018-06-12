@@ -15,15 +15,26 @@ export default class PointDetail extends Component<Props> {
     constructor(props){
         super(props);
         this.state = {
-
+            params: props.navigation && props.navigation.state && props.navigation.state.params || {}
         }
     }
 
-    render() {
-        return (
-            <Image style={styles.wrap} source= {require('../../images/poetry-bg-1.jpg')}>
+    componentWillReceiveProps(nextProps){
+        this.setState({
+            params: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params || {}
+        })
+    }
 
-            </Image>
+    render() {
+
+        const { params } = this.state;
+        console.log('params', params);
+        return (
+            <View>
+                <Text>
+                    point detail
+                </Text>
+            </View>
         );
     }
 }

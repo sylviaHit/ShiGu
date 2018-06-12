@@ -77,7 +77,7 @@ export default class HomePage extends Component{
                                 }
                             ]
                         }]}>
-                        <TouchableOpacity style={styles.linearGradient} onPress={() => {console.log(this.props);this.props.navigation.navigate(pages[0])}}>
+                        <TouchableOpacity style={styles.linearGradient} onPress={() => {this.props.navigation.navigate(pages[0])}}>
                             <LinearGradient colors={colors[0]} style={[styles.demo]}>
                                 <Text>{pages[0]}</Text>
                             </LinearGradient>
