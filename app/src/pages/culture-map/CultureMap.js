@@ -43,7 +43,7 @@ export default class CultureMap extends Component {
 
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
-        this.images = [
+        this.srcs = [
             require('../../images/guju0.jpg'),
             require('../../images/guju1.jpg'),
             require('../../images/guju2.jpg'),
@@ -85,7 +85,7 @@ export default class CultureMap extends Component {
     componentWillMount() {
         service.post('http://data.library.sh.cn/wkl/webapi/building/dolist',{ freetext: ''}).then((data)=>{
                 data.detail.map((item,index)=>{
-                    item.image = this.images[index];
+                    item.src = this.srcs[index];
                     return item;
                 });
 
@@ -164,12 +164,11 @@ export default class CultureMap extends Component {
     }
 
     _renderItem = ({item, index}) => {
-        console.log('item', item);
         return (
             <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
                 <View>
                     <Text style={styles.title}>{ item.name || ''}</Text>
-                    <Image style={styles.image} source={item.image}/>
+                    <Image style={styles.image} source={item.src}/>
                 </View>
             </TouchableOpacity>
         );

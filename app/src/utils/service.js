@@ -1,6 +1,6 @@
 export const service = {
     get: function (url, params, headers) {
-        // console.log('url', url);
+        console.log('url', url);
 
         //若传入参数，则拼接 url
         if(params && params.constructor === Object){
@@ -20,7 +20,7 @@ export const service = {
                 headers: headers,
             })
                 .then((response) => {
-                    // console.log('response11', response);
+                    console.log('response11', response);
                     if (response.ok) {
                         return response.json();
                     } else {
