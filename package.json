@@ -12,6 +12,7 @@
     "react-native-amap3d": "^1.0.0",
     "react-native-linear-gradient": "^2.4.0",
     "react-native-snap-carousel": "^3.7.1",
+    "react-native-timeline-listview": "^0.2.3",
     "react-navigation": "^2.2.2"
   },
   "devDependencies": {

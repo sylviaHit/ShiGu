@@ -2,99 +2,47 @@
  * homePage
  */
 import React, { Component } from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    Dimensions
-} from 'react-native';
-var {width,height} = Dimensions.get('window');
-var dataAry = [];
+import {StyleSheet, Text, View} from 'react-native';
+import Timeline from 'react-native-timeline-listview'
 import data from './data.json';
+
 export default class Poetry extends Component {
     // 构造
-    constructor(props) {
-        super(props);
-        // 初始状态
-        this.state = {
-            dataAry: dataAry,
-        };
+    constructor() {
+        super();
+        this.data = data;
     }
 
     render() {
-        return (
-            <View style={{marginTop:5}}>
-                <FlatList
-                    data = {this.state.dataAry}
-                    renderItem = {(item) => this.renderRow(item)}
-                    keyExtractor={this.keyExtractor}
-                />
-                <View style={{width:1,height:height,backgroundColor:'#50b6ff',position:'absolute',left:50}}></View>
-            </View>
-        );
-    }
-
-    renderRow =(item) =>{
-        if(item.item.text){
-            return(
-                <View style={{marginBottom:10,marginLeft:60}}>
-                    <Text>{item.item.text}</Text>
-                </View>
-            )
-        }else{
-            return(
-                <View style={{flexDirection:'row',marginBottom:10}}>
-                    {/*左边*/}
-                    <View style={{width:60,marginBottom:10}}>
-                        <View style={{flexDirection:'row',alignItems:'center'}}>
-                            <Text>{item.item.time}</Text>
-                            <View style={styles.timeDot}></View>
-                        </View>
-                    </View>
-                    {/*右边*/}
-                    <View style={styles.poemBox} onLayout = {(event)=>this.onLayout(event)} >
-                        <Text style={{}}>{item.item.content}</Text>
-                    </View>
-                </View>
-            )
-
-        }
-
-
-
-    }
-
-    keyExtractor(item: Object, index: number) {
-        return item.id
-    }
-
-    onLayout = (event)=>{
-        console.log(event.nativeEvent.layout.height)
-    }
-
-    componentDidMount() {
-        this.setState({
-            dataAry:data
-        })
-    }
+    //'rgb(45,156,219)'
+    return (
+      <View style={styles.container}>
+        <Timeline 
+          style={styles.list}
+          data={this.data}
+          circleSize={20}
+          circleColor='rgb(45,156,219)'
+          lineColor='rgb(45,156,219)'
+          timeContainerStyle={{minWidth:52, marginTop: -5}}
+          timeStyle={{textAlign: 'center', backgroundColor:'#ff9797', color:'white', padding:5, borderRadius:13}}
+          descriptionStyle={{color:'gray'}}
+          innerCircle={'dot'}
+          options={{
+            style:{paddingTop:5}
+          }}
+        />
+      </View>
+    );
+  }
 }
-
 const styles = StyleSheet.create({
-    dynasty:{
-
-    },
-    timeDot:{
-        width:10,
-        height:10,
-        borderRadius:5,
-        backgroundColor:'#50b6ff',
-        position:'absolute',
-        left:45
-    },
-    poemBox: {
-        backgroundColor:"#fff0bd",
-        marginLeft:5,
-        width:width-70
-    }
+  container: {
+    flex: 1,
+    padding: 20,
+        paddingTop:15,
+    backgroundColor:'white'
+  },
+  list: {
+    flex: 1,
+  },
 });
