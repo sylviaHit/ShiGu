@@ -3,6 +3,10 @@ import React, { Component } from 'react';
 import {
     MapView
 } from 'react-native-amap3d';
+import { connect } from 'react-redux';
+import {
+    actionCreate
+} from "../../redux/reducer";
 
 import {
     Button,
@@ -19,7 +23,7 @@ import Carousel from 'react-native-snap-carousel';
 import Dimensions from 'Dimensions';
 import {service} from "../../utils/service";
 
-export default class CultureMap extends Component {
+class CultureMap extends Component {
 
     // static navigationOptions = {
     //     title: '文化地图',
@@ -83,12 +87,14 @@ export default class CultureMap extends Component {
     }
 
     componentWillMount() {
+        // const { store, actionCreate, dispatch } = this.props;
         service.post('http://data.library.sh.cn/wkl/webapi/building/dolist',{ freetext: ''}).then((data)=>{
                 data.detail.map((item,index)=>{
                     item.src = this.srcs[index];
                     return item;
                 });
 
+            // dispatch(actionCreate('SET_POINT_DETAIL', data ));
                 this.setState({
                     data: data.detail
                 })
@@ -175,6 +181,7 @@ export default class CultureMap extends Component {
     }
 
     render() {
+        console.log('culturemap---', this.props);
         const coordinate = {
             latitude: 31.214266,
             longitude: 121.446494,
@@ -206,6 +213,25 @@ export default class CultureMap extends Component {
         );
     }
 }
+
+
+function mapStateToProps(state) {
+    return {
+        store: state // gives our component access to state through props.toDoApp
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch: dispatch,
+        actionCreate: actionCreate
+    } // here we'll soon be mapping actions to props
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(CultureMap);
+
 
 const styles = StyleSheet.create({
     wrap: {

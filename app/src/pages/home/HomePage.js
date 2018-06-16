@@ -4,8 +4,11 @@ import React ,{
 }from 'react';
 import {Animated, View, Easing, ImageBackground, TouchableOpacity, Dimensions, StyleSheet, Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
-export default class HomePage extends Component{
+import { connect } from 'react-redux';
+import {
+    actionCreate
+} from "../../redux/reducer";
+class HomePage extends Component{
     constructor (props) {
         super(props);
         this.state = {
@@ -30,6 +33,7 @@ export default class HomePage extends Component{
     }
 
     render() {
+        console.log(this.props);
         let self = this;
         let top = [70, 130, 230];
         let colors = [
@@ -207,6 +211,23 @@ export default class HomePage extends Component{
         );
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        store: state // gives our component access to state through props.toDoApp
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch: dispatch,
+        actionCreate: actionCreate
+    } // here we'll soon be mapping actions to props
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(HomePage);
 
 const styles = StyleSheet.create({
     backgroundImage:{

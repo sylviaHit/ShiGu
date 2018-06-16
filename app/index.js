@@ -6,12 +6,11 @@ import HomePage from './src/pages/home/HomePage';
 import Poetry from './src/pages/poetry/Poetry';
 import CultureMap from './src/pages/culture-map/CultureMap';
 import PointDetail from './src/pages/culture-map/PointDetail';
-import MarkerExample from './src/pages/examples/marker';
-import MultiPointExample from './src/pages/examples/multiPoint';
-import ControlsExample from './src/pages/examples/controls';
-import SliderEntry from './src/pages/examples/Slider';
-import MyCarousel from './src/pages/examples/SliderC';
 import { createStackNavigator } from 'react-navigation';
+import { Provider } from 'react-redux';
+import configureStore from './src/redux/createStore';
+
+const store = configureStore();
 
 const RootStack = createStackNavigator(
     {
@@ -29,6 +28,10 @@ const RootStack = createStackNavigator(
 
 export default class App extends React.Component {
     render() {
-        return <RootStack />;
+        return (
+            <Provider store={store}>
+                <RootStack />
+            </Provider>
+        );
     }
 }

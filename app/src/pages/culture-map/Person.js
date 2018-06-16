@@ -1,5 +1,5 @@
 /**
- * 故居点详情页
+ * 人物简介页
  */
 import React, { Component } from 'react';
 import {
@@ -17,12 +17,14 @@ import {
 } from "../../redux/reducer";
 
 type Props = {};
-class PointDetail extends Component<Props> {
+class Person extends Component<Props> {
 
     constructor(props){
         super(props);
         this.state = {
-            point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {}
+            point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
+            data: [],
+            dataMap: new Map()
         }
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
@@ -35,7 +37,31 @@ class PointDetail extends Component<Props> {
     }
 
     componentWillMount(){
+        console.log('willmount');
         this.getData(this.state.point);
+    }
+
+    transformName1 = () => {
+        const { data } =this.state;
+        console.log('dat----------a', data);
+
+        // let dataMap = new Map();
+        let names = [];
+
+        if(data && data.length !==0 ){
+            data.forEach(person=>{
+                if(person.name && Array.isArray(person.name) && person.name.length !== 0){
+                    person.name.forEach(item=>{
+                        if(item['@language'] === 'chs'){
+                            this.state.dataMap.set(item['@value'], person);
+                        }
+                    })
+
+                }
+
+            })
+        }
+        return names;
     }
 
     /**
@@ -43,35 +69,13 @@ class PointDetail extends Component<Props> {
      */
     getData = (point) => {
         const { relation, designer } = point;
-        const { actionCreate, dispatch } = this.props;
-        const { store } = this.props.store;
-        const { culture } = store;
+        const { store, actionCreate, dispatch } = this.props;
         let relations = relation.split(';');
+        console.log('relations', relations);
         this.names = [];
         let dataMap = new Map();
         relations.forEach((uri,index)=>{
-            if(!culture || !culture.get(uri)){  //未请求过此数据
-                service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    console.log('请求数据');
-                    if(response.name && Array.isArray(response.name) && response.name.length !== 0){
-                        response.name.forEach(item=>{
-                            if(item['@language'] === 'chs'){
-                                this.names.push(
-                                    <TouchableOpacity key={index} onPress={(e) => console.log('e', e)}>
-                                        <Text>
-                                            {item['@value']}
-                                        </Text>
-                                    </TouchableOpacity>
-                                )
-                            }
-                        })
-
-                    }
-                    dataMap.set(uri, response);
-                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
-                });
-            } else if(culture.get(uri)){    //已请求过直接从 store 中获取
-                let response = culture.get(uri);
+            service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
                 if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                     response.name.forEach(item=>{
                         if(item['@language'] === 'chs'){
@@ -84,8 +88,11 @@ class PointDetail extends Component<Props> {
                             )
                         }
                     })
+
                 }
-            }
+                dataMap.set(uri, response);
+                dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+            });
         });
     }
 
@@ -99,9 +106,42 @@ class PointDetail extends Component<Props> {
         console.log('relations', relations);
     }
 
+    /**
+     * 相关人物人名转换处理
+     * @returns {*}
+     */
+    transformName = () => {
+        const { data } =this.state;
+        console.log('dat----------a', data);
+
+        // let dataMap = new Map();
+        let names = [];
+
+        if(data && data.length !==0 ){
+            data.forEach(person=>{
+                if(person.name && Array.isArray(person.name) && person.name.length !== 0){
+                    person.name.forEach(item=>{
+                        if(item['@language'] === 'chs'){
+                            this.state.dataMap.set(item['@value'], person);
+                        }
+                    })
+
+                }
+
+            })
+        }
+        return names;
+    }
+
     render() {
 
         const { point } = this.state;
+
+        let names = this.transformName();
+        // console.log('point', point);
+        // console.log('this.screenWidth', this.screenWidth);
+        console.log('this.props', this.props);
+        // console.log('this.state.data', this.state.data,this.state.dataMap);
         const { store } = this.props.store;
         const { culture } = store;
         console.log('culture', culture);
@@ -153,6 +193,15 @@ class PointDetail extends Component<Props> {
                                 相关人物
                             </Text>
                             {this.names}
+                            {
+                                names.map((item, index)=>{
+                                    return(
+                                        <Text key={index}>
+                                            {item}
+                                        </Text>
+                                    )
+                                })
+                            }
                         </View>
                     ) : null
                 }
@@ -176,8 +225,7 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(PointDetail);
-
+)(Person);
 const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
@@ -193,6 +241,9 @@ const styles = StyleSheet.create({
     name:{
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    content: {
+
     },
     title: {
         fontSize: 18,
