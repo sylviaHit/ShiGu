@@ -18,7 +18,7 @@ export default class Poetry extends Component {
     onEventPress(data){
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
-            params: {content: data.description }
+            params: {id: data.id }
         });
         this.props.navigation.dispatch(navigateAction);
     }
@@ -51,11 +51,13 @@ export default class Poetry extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20,
     backgroundColor:'white'
   },
   list: {
     flex: 1,
-    marginTop: 20
+    marginTop: 10
   },
 });
