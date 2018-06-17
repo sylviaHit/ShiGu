@@ -6,6 +6,7 @@ import HomePage from './src/pages/home/HomePage';
 import Poetry from './src/pages/poetry/Poetry';
 import CultureMap from './src/pages/culture-map/CultureMap';
 import PointDetail from './src/pages/culture-map/PointDetail';
+import Person from './src/pages/culture-map/Person';
 import { createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './src/redux/createStore';
@@ -18,6 +19,7 @@ const RootStack = createStackNavigator(
         Poetry:{ screen: Poetry },
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
+        Person: { screen: Person }
     },
     {
         initialRouteName: 'Home',

@@ -18,14 +18,12 @@ import {
 
 type Props = {};
 class Person extends Component<Props> {
-
     constructor(props){
         super(props);
         this.state = {
             point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
-            data: [],
-            dataMap: new Map()
-        }
+            name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {}
+        };
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
     }
@@ -37,8 +35,8 @@ class Person extends Component<Props> {
     }
 
     componentWillMount(){
-        console.log('willmount');
-        this.getData(this.state.point);
+        // console.log('willmount');
+        // this.getData(this.state.point);
     }
 
     transformName1 = () => {
@@ -106,106 +104,21 @@ class Person extends Component<Props> {
         console.log('relations', relations);
     }
 
-    /**
-     * 相关人物人名转换处理
-     * @returns {*}
-     */
-    transformName = () => {
-        const { data } =this.state;
-        console.log('dat----------a', data);
-
-        // let dataMap = new Map();
-        let names = [];
-
-        if(data && data.length !==0 ){
-            data.forEach(person=>{
-                if(person.name && Array.isArray(person.name) && person.name.length !== 0){
-                    person.name.forEach(item=>{
-                        if(item['@language'] === 'chs'){
-                            this.state.dataMap.set(item['@value'], person);
-                        }
-                    })
-
-                }
-
-            })
-        }
-        return names;
-    }
-
     render() {
-
-        const { point } = this.state;
-
-        let names = this.transformName();
-        // console.log('point', point);
-        // console.log('this.screenWidth', this.screenWidth);
+        const { name, point } = this.state;
         console.log('this.props', this.props);
-        // console.log('this.state.data', this.state.data,this.state.dataMap);
+        console.log('this.state', this.state);
+
         const { store } = this.props.store;
         const { culture } = store;
-        console.log('culture', culture);
-
-        this.relationTrans();
+        console.log('culture', culture, point);
         return (
             <View>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
-                        {point.name}
-                        {point.yname ? `(${point.yname})` : ''}
-                    </Text>
-                    <Image source={point.src} style={styles.img}/>
-                    <Text>
-                        {point.address || ''}
+                        {name}
                     </Text>
                 </View>
-                {
-                    point.architecturalStyle || point.architectureStructure ? (
-                        <View>
-                            <Text style={styles.title}>
-                                建筑风格及简介
-                            </Text>
-                            <Text>
-                                {point.architecturalStyle || ''}
-                            </Text>
-                            <Text>
-                                {point.architectureStructure || ''}
-                            </Text>
-                        </View>
-                    ) : null
-                }
-                {
-                    point.designer ? (
-                        <View>
-                            <Text style={styles.title}>
-                                设计师
-                            </Text>
-                            <Text>
-                                {point.designer}
-                            </Text>
-                        </View>
-                    ) : null
-                }
-                {
-                    point.relation ? (
-                        <View>
-                            <Text style={styles.title}>
-                                相关人物
-                            </Text>
-                            {this.names}
-                            {
-                                names.map((item, index)=>{
-                                    return(
-                                        <Text key={index}>
-                                            {item}
-                                        </Text>
-                                    )
-                                })
-                            }
-                        </View>
-                    ) : null
-                }
-
             </View>
         );
     }
@@ -226,6 +139,7 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(Person);
+
 const styles = StyleSheet.create({
     header: {
         alignItems: 'center',

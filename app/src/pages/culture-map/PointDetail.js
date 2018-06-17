@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import {
     actionCreate
 } from "../../redux/reducer";
+import {NavigationActions} from "react-navigation";
 
 type Props = {};
 class PointDetail extends Component<Props> {
@@ -39,6 +40,21 @@ class PointDetail extends Component<Props> {
     }
 
     /**
+     * 跳转到人物详情页
+     */
+    goToPerson = (e, point, name) => {
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Person',
+            params: {
+                name: name,
+                point: point
+            },
+            action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
+        });
+        this.props.navigation.dispatch(navigateAction);
+    };
+
+    /**
      * 获取数据
      */
     getData = (point) => {
@@ -57,7 +73,7 @@ class PointDetail extends Component<Props> {
                         response.name.forEach(item=>{
                             if(item['@language'] === 'chs'){
                                 this.names.push(
-                                    <TouchableOpacity key={index} onPress={(e) => console.log('e', e)}>
+                                    <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
                                         <Text>
                                             {item['@value']}
                                         </Text>
