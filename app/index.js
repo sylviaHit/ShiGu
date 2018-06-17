@@ -10,6 +10,7 @@ import Person from './src/pages/culture-map/Person';
 import { createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './src/redux/createStore';
+import PoemDetail from "./src/pages/poetry/PoemDetail";
 
 const store = configureStore();
 
@@ -17,6 +18,7 @@ const RootStack = createStackNavigator(
     {
         Home: { screen: HomePage },
         Poetry:{ screen: Poetry },
+        PoemDetail: {screen: PoemDetail},
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
         Person: { screen: Person }

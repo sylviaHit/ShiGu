@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Timeline from 'react-native-timeline-listview'
+import { NavigationActions } from 'react-navigation';
 import data from './data.json';
 
 export default class Poetry extends Component {
@@ -11,6 +12,15 @@ export default class Poetry extends Component {
     constructor() {
         super();
         this.data = data;
+        this.onEventPress = this.onEventPress.bind(this);
+    }
+
+    onEventPress(data){
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'PoemDetail',
+            params: {content: data.description }
+        });
+        this.props.navigation.dispatch(navigateAction);
     }
 
     render() {
@@ -30,19 +40,22 @@ export default class Poetry extends Component {
           options={{
             style:{paddingTop:5}
           }}
+          onEventPress={this.onEventPress}
+
         />
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-        paddingTop:15,
     backgroundColor:'white'
   },
   list: {
     flex: 1,
+    marginTop: 20
   },
 });
