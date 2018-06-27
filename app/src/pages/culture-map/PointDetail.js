@@ -68,7 +68,7 @@ class PointDetail extends Component<Props> {
         relations.forEach((uri,index)=>{
             if(!culture || !culture.get(uri)){  //未请求过此数据
                 service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    console.log('请求数据');
+                    // console.log('请求数据');
                     if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                         response.name.forEach(item=>{
                             if(item['@language'] === 'chs'){
@@ -92,7 +92,7 @@ class PointDetail extends Component<Props> {
                     response.name.forEach(item=>{
                         if(item['@language'] === 'chs'){
                             this.names.push(
-                                <TouchableOpacity key={index} onPress={(e) => console.log('e', e)}>
+                                <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
                                     <Text>
                                         {item['@value']}
                                     </Text>
@@ -112,7 +112,6 @@ class PointDetail extends Component<Props> {
     relationTrans = () => {
         const { relation } = this.state.point;
         let relations = relation.split(';');
-        console.log('relations', relations);
     }
 
     render() {
@@ -120,7 +119,6 @@ class PointDetail extends Component<Props> {
         const { point } = this.state;
         const { store } = this.props.store;
         const { culture } = store;
-        console.log('culture', culture);
 
         this.relationTrans();
         return (

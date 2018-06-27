@@ -33,7 +33,7 @@ class HomePage extends Component{
     }
 
     render() {
-        console.log(this.props);
+        // console.log(this.props);
         let self = this;
         let top = [70, 130, 230];
         let colors = [

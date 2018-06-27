@@ -7,6 +7,7 @@ import {
     View,
     Text,
     Image,
+    ScrollView,
     TouchableOpacity
 } from 'react-native';
 import Dimensions from 'Dimensions';
@@ -22,7 +23,8 @@ class Person extends Component<Props> {
         super(props);
         this.state = {
             point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
-            name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {}
+            name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {},
+            more: false
         };
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
@@ -35,7 +37,7 @@ class Person extends Component<Props> {
     }
 
     componentWillMount(){
-        // console.log('willmount');
+        console.log('willmount');
         // this.getData(this.state.point);
     }
 
@@ -104,20 +106,111 @@ class Person extends Component<Props> {
         console.log('relations', relations);
     }
 
+    briefBiographyTrans = (arr) => {
+        let elems = [];
+        arr.forEach((item,index)=>{
+            elems.push(
+               <Text key={index}>
+                    {item}
+               </Text>
+                //<ScrollView  key={index} contentContainerStyle={styles.content}>
+                  //  <Text style={styles.text}>
+                    //    {item}
+                    //</Text>
+                //</ScrollView>
+            )
+        });
+        return elems;
+    }
+
+    openMore = () =>{
+        this.setState({
+            more: !this.state.more
+        })
+    }
+
+    /**
+     * 查看作品
+     */
+    getWork = (e, creatorOf) => {
+        this.works = [];
+        if(creatorOf && Array.isArray(creatorOf)){
+            creatorOf.forEach((item,index)=>{
+                service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                    if(response){
+                        this.works.push(response);
+                        if(this.works.length === creatorOf.length){
+                            this.setState({
+                                works: this.works
+                            })
+                        }
+                    }
+                });
+            })
+        }
+        console.log('this.works', this.works);
+
+    }
+
+    /**
+     * 渲染作品列表
+     */
+    renderWorks = () => {
+        const { works } = this.state;
+        let work = '';
+        if(works && Array.isArray(works)){
+            works.forEach((item,index)=>{
+                work = `${work}${item.title || ''}  `;
+            })
+        }
+        console.log('work', work);
+        return work;
+    }
+
     render() {
         const { name, point } = this.state;
-        console.log('this.props', this.props);
+        // console.log('this.props', this.props);
         console.log('this.state', this.state);
 
         const { store } = this.props.store;
         const { culture } = store;
-        console.log('culture', culture, point);
+        // console.log('culture', culture, point);
         return (
             <View>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {name}
                     </Text>
+                    <Text>
+                        ({point.birthday || ''}-{point.deathday || ''})
+                    </Text>
+                    {
+                        point.briefBiography ? (
+                            <View>
+                                <Text style={styles.title}>人物小传</Text>
+                                <Text  style={!this.state.more ? styles.content : styles.more_content}>
+                                    {point.gender ? `${point.gender},` : ''}
+                                    {
+                                        this.briefBiographyTrans(point.briefBiography)
+                                    }
+                                </Text>
+                                <TouchableOpacity onPress={this.openMore}>
+                                    <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
+                                </TouchableOpacity>
+                                {
+                                    point.creatorOf ? <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
+                                        <Text style={styles.title}>查看作品</Text>
+                                        <Text>
+                                            {this.renderWorks()}
+                                        </Text>
+                                    </TouchableOpacity> : null
+                                }
+
+
+
+                            </View>
+                        ) : null
+                    }
                 </View>
             </View>
         );
@@ -157,11 +250,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     content: {
-
+        width: this.screenWidth,
+        height: 66
+    },
+    more_content: {
+        width: this.screenWidth,
     },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    open_more:{
+        color: '#00f'
     }
 
 });

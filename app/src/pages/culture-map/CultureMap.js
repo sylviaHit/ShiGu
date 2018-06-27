@@ -116,7 +116,6 @@ class CultureMap extends Component {
     }
 
     onMarkerPress = (e, index) => {
-        console.log('index', index);
         this.setState({
             currentIndex : index
         })
@@ -163,7 +162,6 @@ class CultureMap extends Component {
     }
 
     onSnapToItem = (slideIndex) => {
-        console.log('slideIndex', slideIndex);
         this.setState({
             currentIndex: slideIndex
         })
@@ -181,7 +179,6 @@ class CultureMap extends Component {
     }
 
     render() {
-        console.log('culturemap---', this.props);
         const coordinate = {
             latitude: 31.214266,
             longitude: 121.446494,
