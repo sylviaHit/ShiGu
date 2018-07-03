@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import {
     actionCreate
 } from "../../redux/reducer";
+import {NavigationActions} from "react-navigation";
 
 type Props = {};
 class Person extends Component<Props> {
@@ -24,21 +25,24 @@ class Person extends Component<Props> {
         this.state = {
             point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
             name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {},
-            more: false
+            more: false,
+            workMore: false
         };
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
+        this.friends = [];
     }
 
     componentWillReceiveProps(nextProps){
         this.setState({
-            point: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.point || {}
+            point: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.point || {},
+            name: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.name || {}
         })
     }
 
     componentWillMount(){
         console.log('willmount');
-        // this.getData(this.state.point);
+        this.getData(this.state.point);
     }
 
     transformName1 = () => {
@@ -65,22 +69,59 @@ class Person extends Component<Props> {
     }
 
     /**
+     * 跳转到人物详情页
+     */
+    goToPerson = (e, point, name) => {
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Person',
+            params: {
+                name: name,
+                point: point
+            },
+            action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
+        });
+        this.props.navigation.dispatch(navigateAction);
+    };
+
+    /**
      * 获取数据
      */
     getData = (point) => {
-        const { relation, designer } = point;
+        const { friendOf } = point;
         const { store, actionCreate, dispatch } = this.props;
-        let relations = relation.split(';');
-        console.log('relations', relations);
-        this.names = [];
+        this.friends = [];
         let dataMap = new Map();
-        relations.forEach((uri,index)=>{
-            service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+        console.log('friendOf', friendOf, point);
+        if(friendOf && Array.isArray(friendOf)){
+            friendOf.forEach((uri,index)=>{
+                service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                    if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                        response.name.forEach(item=>{
+                            if(item['@language'] === 'chs'){
+                                console.log('item', item, item['@value'] );
+                                this.friends.push(
+                                    <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                        <Text>
+                                            {item['@value']}
+                                        </Text>
+                                    </TouchableOpacity>
+                                )
+                            }
+                        })
+
+                    }
+                    dataMap.set(uri, response);
+                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                });
+            });
+        }else if(friendOf){
+            service.get('http://data1.library.sh.cn/data/jsonld', {uri: friendOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                console.log('response', response);
                 if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                     response.name.forEach(item=>{
                         if(item['@language'] === 'chs'){
-                            this.names.push(
-                                <TouchableOpacity key={index} onPress={(e) => console.log('e', e)}>
+                            this.friends.push(
+                                <TouchableOpacity  onPress={(e) => this.goToPerson(e, response, item['@value'])}>
                                     <Text>
                                         {item['@value']}
                                     </Text>
@@ -90,10 +131,10 @@ class Person extends Component<Props> {
                     })
 
                 }
-                dataMap.set(uri, response);
+                dataMap.set(friendOf, response);
                 dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
             });
-        });
+        }
     }
 
 
@@ -108,24 +149,44 @@ class Person extends Component<Props> {
 
     briefBiographyTrans = (arr) => {
         let elems = [];
-        arr.forEach((item,index)=>{
-            elems.push(
-               <Text key={index}>
-                    {item}
-               </Text>
-                //<ScrollView  key={index} contentContainerStyle={styles.content}>
-                  //  <Text style={styles.text}>
+        if(arr && Array.isArray(arr)){
+            arr.forEach((item,index)=>{
+                elems.push(
+                    <Text key={index}>
+                        {item}
+                    </Text>
+                    //<ScrollView  key={index} contentContainerStyle={styles.content}>
+                    //  <Text style={styles.text}>
                     //    {item}
                     //</Text>
+                    //</ScrollView>
+                )
+            });
+        }else{
+            elems.push(
+                <Text>
+                    {arr}
+                </Text>
+                //<ScrollView  key={index} contentContainerStyle={styles.content}>
+                //  <Text style={styles.text}>
+                //    {item}
+                //</Text>
                 //</ScrollView>
             )
-        });
+        }
+
         return elems;
     }
 
     openMore = () =>{
         this.setState({
             more: !this.state.more
+        })
+    }
+
+    openWorkMore = () =>{
+        this.setState({
+            workMore: !this.state.workMore
         })
     }
 
@@ -141,7 +202,8 @@ class Person extends Component<Props> {
                         this.works.push(response);
                         if(this.works.length === creatorOf.length){
                             this.setState({
-                                works: this.works
+                                works: this.works,
+                                workMore: !this.state.workMore
                             })
                         }
                     }
@@ -157,14 +219,20 @@ class Person extends Component<Props> {
      */
     renderWorks = () => {
         const { works } = this.state;
-        let work = '';
+        let workList = [];
         if(works && Array.isArray(works)){
             works.forEach((item,index)=>{
-                work = `${work}${item.title || ''}  `;
+                workList.push(
+                    <TouchableOpacity key={index}>
+                        <Text>
+                            {item.title}
+                        </Text>
+                    </TouchableOpacity>
+
+                );
             })
         }
-        console.log('work', work);
-        return work;
+        return workList;
     }
 
     render() {
@@ -176,7 +244,7 @@ class Person extends Component<Props> {
         const { culture } = store;
         // console.log('culture', culture, point);
         return (
-            <View>
+            <ScrollView>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {name}
@@ -184,35 +252,47 @@ class Person extends Component<Props> {
                     <Text>
                         ({point.birthday || ''}-{point.deathday || ''})
                     </Text>
-                    {
-                        point.briefBiography ? (
-                            <View>
-                                <Text style={styles.title}>人物小传</Text>
-                                <Text  style={!this.state.more ? styles.content : styles.more_content}>
-                                    {point.gender ? `${point.gender},` : ''}
-                                    {
-                                        this.briefBiographyTrans(point.briefBiography)
-                                    }
-                                </Text>
-                                <TouchableOpacity onPress={this.openMore}>
-                                    <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
-                                </TouchableOpacity>
-                                {
-                                    point.creatorOf ? <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
-                                        <Text style={styles.title}>查看作品</Text>
-                                        <Text>
-                                            {this.renderWorks()}
-                                        </Text>
-                                    </TouchableOpacity> : null
-                                }
 
-
-
-                            </View>
-                        ) : null
-                    }
                 </View>
-            </View>
+                {
+                    point.briefBiography ? (
+                        <View>
+                            <Text style={styles.title}>人物小传</Text>
+                            <Text  style={!this.state.more ? styles.content : styles.more_content}>
+                                {point.gender ? `${point.gender},` : ''}
+                                {
+                                    this.briefBiographyTrans(point.briefBiography)
+                                }
+                            </Text>
+                            <TouchableOpacity onPress={this.openMore}>
+                                <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
+                            </TouchableOpacity>
+
+                        </View>
+                    ) : null
+                }
+                {
+                    this.friends ?
+                        <View>
+                            <Text style={styles.title}>好友列表</Text>
+                            {
+                                this.friends
+                            }
+                        </View> : null
+                }
+                {
+                    point.creatorOf ?
+                        <View>
+                            <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
+                                <Text style={styles.title}>{this.state.workMore ? '收起作品列表' : '打开作品列表'}</Text>
+                            </TouchableOpacity>
+
+                            <View  style={!this.state.workMore ? styles.workList : styles.more_workList}>
+                                {this.renderWorks()}
+                            </View>
+                        </View> : null
+                }
+            </ScrollView>
         );
     }
 }
@@ -256,9 +336,16 @@ const styles = StyleSheet.create({
     more_content: {
         width: this.screenWidth,
     },
+    workList: {
+        width: this.screenWidth,
+        height: 0
+    },
+    more_workList: {
+        width: this.screenWidth,
+    },
     title: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: 'bold'
     },
     open_more:{
         color: '#00f'

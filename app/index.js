@@ -24,7 +24,7 @@ const RootStack = createStackNavigator(
         Person: { screen: Person }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'CultureMap',
         mode: 'modal',
         // headerMode: 'none',
     }
