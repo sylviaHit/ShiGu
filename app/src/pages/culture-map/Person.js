@@ -25,15 +25,18 @@ class Person extends Component<Props> {
         this.state = {
             point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
             name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {},
+            friends: [],
             more: false,
             workMore: false
         };
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
-        this.friends = [];
     }
 
     componentWillReceiveProps(nextProps){
+        if(nextProps.navigation.state.params.name !== this.state.name){
+            this.getData(nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.point || {});
+        }
         this.setState({
             point: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.point || {},
             name: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.name || {}
@@ -41,15 +44,11 @@ class Person extends Component<Props> {
     }
 
     componentWillMount(){
-        console.log('willmount');
         this.getData(this.state.point);
     }
 
     transformName1 = () => {
         const { data } =this.state;
-        console.log('dat----------a', data);
-
-        // let dataMap = new Map();
         let names = [];
 
         if(data && data.length !==0 ){
@@ -89,44 +88,48 @@ class Person extends Component<Props> {
     getData = (point) => {
         const { friendOf } = point;
         const { store, actionCreate, dispatch } = this.props;
-        this.friends = [];
-        let dataMap = new Map();
-        console.log('friendOf', friendOf, point);
+        let friends = [];
+        this.state.friends = [];
+        let dataMap = {};
         if(friendOf && Array.isArray(friendOf)){
             friendOf.forEach((uri,index)=>{
                 service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
                     if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                         response.name.forEach(item=>{
                             if(item['@language'] === 'chs'){
-                                console.log('item', item, item['@value'] );
-                                this.friends.push(
+                                let friends = this.state.friends;
+                                friends.push(
+                                    <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                        <Text>
+                                            {item['@value']}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                                this.setState({
+                                    friends: friends
+                                })
+                            }
+                        })
+
+                    }
+                    dataMap[uri] =  response;
+                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                });
+            });
+        }else if(friendOf){
+            service.get('http://data1.library.sh.cn/data/jsonld', {uri: friendOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                    response.name.forEach((item, index)=>{
+                        if(item['@language'] === 'chs'){
+                            this.setState({
+                                friends: (
                                     <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
                                         <Text>
                                             {item['@value']}
                                         </Text>
                                     </TouchableOpacity>
                                 )
-                            }
-                        })
-
-                    }
-                    dataMap.set(uri, response);
-                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
-                });
-            });
-        }else if(friendOf){
-            service.get('http://data1.library.sh.cn/data/jsonld', {uri: friendOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                console.log('response', response);
-                if(response.name && Array.isArray(response.name) && response.name.length !== 0){
-                    response.name.forEach(item=>{
-                        if(item['@language'] === 'chs'){
-                            this.friends.push(
-                                <TouchableOpacity  onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                    <Text>
-                                        {item['@value']}
-                                    </Text>
-                                </TouchableOpacity>
-                            )
+                            })
                         }
                     })
 
@@ -134,6 +137,10 @@ class Person extends Component<Props> {
                 dataMap.set(friendOf, response);
                 dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
             });
+        }else {
+            this.setState({
+                friends: []
+            })
         }
     }
 
@@ -144,7 +151,6 @@ class Person extends Component<Props> {
     relationTrans = () => {
         const { relation } = this.state.point;
         let relations = relation.split(';');
-        console.log('relations', relations);
     }
 
     briefBiographyTrans = (arr) => {
@@ -155,26 +161,15 @@ class Person extends Component<Props> {
                     <Text key={index}>
                         {item}
                     </Text>
-                    //<ScrollView  key={index} contentContainerStyle={styles.content}>
-                    //  <Text style={styles.text}>
-                    //    {item}
-                    //</Text>
-                    //</ScrollView>
                 )
             });
         }else{
             elems.push(
-                <Text>
+                <Text key={0}>
                     {arr}
                 </Text>
-                //<ScrollView  key={index} contentContainerStyle={styles.content}>
-                //  <Text style={styles.text}>
-                //    {item}
-                //</Text>
-                //</ScrollView>
             )
         }
-
         return elems;
     }
 
@@ -194,23 +189,25 @@ class Person extends Component<Props> {
      * 查看作品
      */
     getWork = (e, creatorOf) => {
-        this.works = [];
+        let works = [];
         if(creatorOf && Array.isArray(creatorOf)){
             creatorOf.forEach((item,index)=>{
                 service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
                     if(response){
-                        this.works.push(response);
-                        if(this.works.length === creatorOf.length){
+                        works.push(response);
+                        if(works.length === creatorOf.length){
                             this.setState({
-                                works: this.works,
+                                works: works,
                                 workMore: !this.state.workMore
                             })
                         }
                     }
                 });
             })
+        }else{
+            console.log('creatorOf', creatorOf);
         }
-        console.log('this.works', this.works);
+        console.log('this.works', works);
 
     }
 
@@ -272,11 +269,11 @@ class Person extends Component<Props> {
                     ) : null
                 }
                 {
-                    this.friends ?
+                    this.state.friends && this.state.friends.length !== 0 ?
                         <View>
                             <Text style={styles.title}>好友列表</Text>
                             {
-                                this.friends
+                                this.state.friends
                             }
                         </View> : null
                 }

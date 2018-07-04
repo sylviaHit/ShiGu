@@ -63,10 +63,12 @@ class PointDetail extends Component<Props> {
         const { store } = this.props.store;
         const { culture } = store;
         let relations = relation.split(';');
+        console.log('point', point);
         this.names = [];
-        let dataMap = new Map();
+        this.designers = [];
+        let dataMap = {};
         relations.forEach((uri,index)=>{
-            if(!culture || !culture.get(uri)){  //未请求过此数据
+            if(!culture || !culture[uri]){  //未请求过此数据
                 service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
                     // console.log('请求数据');
                     if(response.name && Array.isArray(response.name) && response.name.length !== 0){
@@ -83,11 +85,12 @@ class PointDetail extends Component<Props> {
                         })
 
                     }
-                    dataMap.set(uri, response);
+                    dataMap[uri] = response;
+                    // dataMap.set(uri, response);
                     dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
                 });
-            } else if(culture.get(uri)){    //已请求过直接从 store 中获取
-                let response = culture.get(uri);
+            } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
+                let response = culture[uri];
                 if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                     response.name.forEach(item=>{
                         if(item['@language'] === 'chs'){
@@ -103,6 +106,88 @@ class PointDetail extends Component<Props> {
                 }
             }
         });
+        if(Array.isArray(designer) && designer.length > 0){
+            designer.forEach((uri,index)=>{
+                if(!culture || !culture[uri]){  //未请求过此数据
+                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                        // console.log('请求数据');
+                        if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                            response.name.forEach(item=>{
+                                if(item['@language'] === 'chs'){
+                                    this.designers.push(
+                                        <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                            <Text>
+                                                {item['@value']}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )
+                                }
+                            })
+
+                        }
+                        dataMap[uri] = response;
+                        // dataMap.set(uri, response);
+                        dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                    });
+                } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
+                    let response = culture[uri];
+                    if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                        response.name.forEach(item=>{
+                            if(item['@language'] === 'chs'){
+                                this.designers.push(
+                                    <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                        <Text>
+                                            {item['@value']}
+                                        </Text>
+                                    </TouchableOpacity>
+                                )
+                            }
+                        })
+                    }
+                }
+            });
+        }else{
+            let uri = designer;
+            if(!culture || !culture[uri]){  //未请求过此数据
+                service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                    // console.log('请求数据');
+                    if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                        response.name.forEach(item=>{
+                            if(item['@language'] === 'chs'){
+                                this.designers.push(
+                                    <TouchableOpacity key={item['@value']} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                        <Text>
+                                            {item['@value']}
+                                        </Text>
+                                    </TouchableOpacity>
+                                )
+                            }
+                        })
+
+                    }
+                    dataMap[uri] = response;
+                    // dataMap.set(uri, response);
+                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                });
+            } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
+                let response = culture[uri];
+                if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                    response.name.forEach(item=>{
+                        if(item['@language'] === 'chs'){
+                            this.designers.push(
+                                <TouchableOpacity key={item['@value']} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                    <Text>
+                                        {item['@value']}
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }
+                    })
+                }
+            }
+        }
+
+
     }
 
 
@@ -154,9 +239,7 @@ class PointDetail extends Component<Props> {
                             <Text style={styles.title}>
                                 设计师
                             </Text>
-                            <Text>
-                                {point.designer}
-                            </Text>
+                            {this.designers}
                         </View>
                     ) : null
                 }
