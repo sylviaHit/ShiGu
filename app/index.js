@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import HomePage from './src/pages/home/HomePage';
+import HomePageTest from './src/pages/home/HomePageTest';
 import Poetry from './src/pages/poetry/Poetry';
 import CultureMap from './src/pages/culture-map/CultureMap';
 import PointDetail from './src/pages/culture-map/PointDetail';
@@ -16,7 +17,7 @@ const store = configureStore();
 
 const RootStack = createStackNavigator(
     {
-        Home: { screen: HomePage },
+        Home: { screen: HomePageTest },
         Poetry:{ screen: Poetry },
         PoemDetail: {screen: PoemDetail},
         CultureMap:{ screen: CultureMap },
@@ -24,7 +25,7 @@ const RootStack = createStackNavigator(
         Person: { screen: Person }
     },
     {
-        initialRouteName: 'CultureMap',
+        initialRouteName: 'Home',
         mode: 'modal',
         // headerMode: 'none',
     }
