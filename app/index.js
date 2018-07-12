@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import HomePage from './src/pages/home/HomePage';
 import HomePageTest from './src/pages/home/HomePageTest';
+import HomePageTest2 from './src/pages/home/HomePageTest2';
 import Poetry from './src/pages/poetry/Poetry';
 import CultureMap from './src/pages/culture-map/CultureMap';
 import PointDetail from './src/pages/culture-map/PointDetail';

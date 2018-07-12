@@ -2,7 +2,7 @@
 import React ,{
     Component
 }from 'react';
-import {Animated, View, Easing, ImageBackground, TouchableOpacity, Dimensions, StyleSheet, Text} from 'react-native';
+import {Animated, View, Easing, Image, ImageBackground, TouchableOpacity, Dimensions, StyleSheet, Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import {
@@ -42,56 +42,73 @@ class HomePageTest extends Component{
             ,this.screenHeight/20*11,this.screenHeight/20*12,this.screenHeight/20*13,this.screenHeight/20*14,this.screenHeight/20*15
             ,this.screenHeight/20*16,this.screenHeight/20*17,this.screenHeight/20*18,this.screenHeight/20*19,this.screenHeight/20*20];
         return (
-            <View style={{width: this.screenWidth, height: this.screenHeight, backgroundColor: '#000'}}>
+            <View style={{width: this.screenWidth, height: this.screenHeight, backgroundColor: '#fff'}}>
+
+                <View style={{position: 'absolute', width: this.screenWidth, height: sizeArrW[3],alignItems:'center', top: 30,borderWidth:1,borderColor:'white',borderLeftColor: 'transparent', borderRightColor:'transparent'}}>
+                    <View style={{position: 'absolute', width: sizeArrW[3], height: sizeArrW[3],borderRadius:20, overflow: 'hidden'}}>
+                        <Image source={require('../../images/bird.jpg')}  style={{ width: 100, height: 100}}/>
+                    </View>
+                </View>
                 {/*<View style={{width: sizeArrW[7], height: sizeArrH[3], position: 'absolute', left: sizeArrW[11], top:sizeArrH[6], backgroundColor: '#343434'}}>*/}
                     {/*<View style={{width: sizeArrW[2], height: sizeArrW[1], position: 'absolute', left: sizeArrW[4],  backgroundColor: '#757575'}}/>*/}
                     {/*<View style={{width: sizeArrW[2], height: sizeArrW[0], position: 'absolute', left: sizeArrW[3], top:sizeArrW[1], backgroundColor: '#757575'}}/>*/}
                     {/*<View style={{width: sizeArrW[1], height: sizeArrW[1], position: 'absolute', left: sizeArrW[1], top:sizeArrW[3], backgroundColor: '#757575'}}/>*/}
                 {/*</View>*/}
-                <View style={{width: sizeArrW[5], height: sizeArrH[2], position: 'absolute', left: sizeArrW[5], top:sizeArrH[0], backgroundColor: '#000'}}>
-                    <View style={{width: sizeArrW[1], height: sizeArrH[1], position: 'absolute', left: sizeArrW[0], top:sizeArrH[0], backgroundColor: '#343434'}}/>
-                    <View style={{width: sizeArrW[4], height: sizeArrH[1], position: 'absolute', left: sizeArrW[1], top:0, backgroundColor: '#343434'}}>
-                        <View style={{width: sizeArrW[0], height: sizeArrH[0], top:sizeArrH[0], backgroundColor: '#757575', zIndex: 10}}/>
+                {/*<View style={{width: sizeArrW[5], height: sizeArrH[2], position: 'absolute', left: sizeArrW[5], top:sizeArrH[0], backgroundColor: '#fffs'}}>*/}
+                    {/*<View style={{width: sizeArrW[1], height: sizeArrH[1], position: 'absolute', left: sizeArrW[0], top:sizeArrH[0], backgroundColor: '#343434'}}/>*/}
+                    {/*<View style={{width: sizeArrW[4], height: sizeArrH[1], position: 'absolute', left: sizeArrW[1], top:0, backgroundColor: '#343434'}}>*/}
+                        {/*<View style={{width: sizeArrW[0], height: sizeArrH[0], top:sizeArrH[0], backgroundColor: '#757575', zIndex: 10}}/>*/}
+                    {/*</View>*/}
+                {/*</View>*/}
+                <View style={{width: sizeArrW[6], height: sizeArrH[2], position: 'absolute', left: sizeArrW[4], top:sizeArrH[13], backgroundColor: '#fff'}}>
+                    <View style={{width: sizeArrW[3], height: sizeArrH[1], position: 'absolute', left: sizeArrW[2], top:sizeArrH[0], backgroundColor: '#fff7c4'}}/>
+                    <View style={{width: sizeArrW[4], height: sizeArrH[1], position: 'absolute', left: 0, top:0, backgroundColor: '#ffd48a'}}>
+                        {/*<View style={{width: sizeArrW[1], height: sizeArrH[0], left: sizeArrW[2], top:sizeArrH[0], backgroundColor: '#ffffff', zIndex: 10}}/>*/}
                     </View>
                 </View>
-                <View style={{width: sizeArrW[6], height: sizeArrH[2], position: 'absolute', left: sizeArrW[4], top:sizeArrH[13], backgroundColor: '#000'}}>
-                    <View style={{width: sizeArrW[3], height: sizeArrH[1], position: 'absolute', left: sizeArrW[2], top:sizeArrH[0], backgroundColor: '#343434'}}/>
-                    <View style={{width: sizeArrW[4], height: sizeArrH[1], position: 'absolute', left: 0, top:0, backgroundColor: '#343434'}}>
-                        <View style={{width: sizeArrW[1], height: sizeArrH[0], left: sizeArrW[2], top:sizeArrH[0], backgroundColor: '#757575', zIndex: 10}}/>
+                <View style={{width: sizeArrW[7], height: sizeArrH[3], position: 'absolute', left: sizeArrW[11], top:sizeArrH[6], backgroundColor: '#fff'}}>
+                    <View style={{width: sizeArrW[2], height: sizeArrH[1], position: 'absolute', left: sizeArrW[4], top:0, backgroundColor: '#fff7c4'}}/>
+                    <View style={{width: sizeArrW[2], height: sizeArrH[0], position: 'absolute', left: 0, top:sizeArrH[1], backgroundColor: '#ffed90'}}/>
+                    <View style={{width: sizeArrW[3], height: sizeArrH[2], position: 'absolute', left: sizeArrW[1], top:sizeArrH[0], backgroundColor: '#fff7c4'}}>
+                        {/*<View style={{width: sizeArrW[0], height: sizeArrH[0], left: sizeArrW[2], top:0, position: 'absolute',backgroundColor: '#ffffff', zIndex: 10}}/>*/}
+                        {/*<View style={{width: sizeArrW[0], height: sizeArrH[0], left: 0, top:sizeArrH[0], position: 'absolute',backgroundColor: '#ffffff', zIndex: 10}}/>*/}
                     </View>
                 </View>
-                <View style={{width: sizeArrW[7], height: sizeArrH[3], position: 'absolute', left: sizeArrW[11], top:sizeArrH[6], backgroundColor: '#000'}}>
-                    <View style={{width: sizeArrW[2], height: sizeArrH[1], position: 'absolute', left: sizeArrW[4], top:0, backgroundColor: '#343434'}}/>
-                    <View style={{width: sizeArrW[2], height: sizeArrH[0], position: 'absolute', left: 0, top:sizeArrH[1], backgroundColor: '#343434'}}/>
-                    <View style={{width: sizeArrW[3], height: sizeArrH[2], position: 'absolute', left: sizeArrW[1], top:sizeArrH[0], backgroundColor: '#343434'}}>
-                        <View style={{width: sizeArrW[0], height: sizeArrH[0], left: sizeArrW[2], top:0, position: 'absolute',backgroundColor: '#757575', zIndex: 10}}/>
-                        <View style={{width: sizeArrW[0], height: sizeArrH[0], left: 0, top:sizeArrH[0], position: 'absolute',backgroundColor: '#757575', zIndex: 10}}/>
-                    </View>
-                </View>
-                <View style={{width: sizeArrW[2], height: sizeArrH[1], position: 'absolute', left: sizeArrW[1], top:sizeArrH[6], backgroundColor: '#343434'}}/>
+                <View style={{width: sizeArrW[2], height: sizeArrH[1], position: 'absolute', left: sizeArrW[1], top:sizeArrH[6], backgroundColor: '#fff7c4'}}/>
                 {/*<View style={{width: sizeArrW[2], height: sizeArrH[0], position: 'absolute', left: sizeArrW[2], top:sizeArrH[16], backgroundColor: '#343434'}}/>*/}
-                <View style={{width: sizeArrW[1], height: sizeArrH[0], position: 'absolute', left: sizeArrW[2], top:sizeArrH[3], backgroundColor: '#343434'}}/>
-                <TouchableOpacity  style={{position: 'absolute', left: sizeArrW[11], top:sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[0])}}>
-                    <LinearGradient colors={colors[0]} style={{width: sizeArrW[5], height: sizeArrH[2],backgroundColor:'transparent'}}>
+                <View style={{width: sizeArrW[1], height: sizeArrH[0], position: 'absolute', left: sizeArrW[2], top:sizeArrH[3], backgroundColor: '#fff7c4'}}/>
+                {/*<TouchableOpacity  style={{position: 'absolute', left: sizeArrW[11], top:sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[0])}}>*/}
+                    {/*<LinearGradient colors={colors[0]} style={{width: sizeArrW[5], height: sizeArrH[2],backgroundColor:'transparent'}}>*/}
+                        {/*<Text>{pages[0]}</Text>*/}
+                    {/*</LinearGradient>*/}
+                {/*</TouchableOpacity>*/}
+                {/*<TouchableOpacity style={{position: 'absolute', left: sizeArrW[2], top:sizeArrH[11]}} onPress={() => {this.props.navigation.navigate(pages[1])}}>*/}
+                    {/*<LinearGradient colors={colors[1]} style={{width: sizeArrW[5], height: sizeArrH[2],backgroundColor:'transparent'}}>*/}
+                        {/*<Text>{pages[1]}</Text>*/}
+                    {/*</LinearGradient>*/}
+                {/*</TouchableOpacity>*/}
+                {/*<TouchableOpacity style={{position: 'absolute', left: sizeArrW[13], top:sizeArrH[13]}} onPress={() => {this.props.navigation.navigate(pages[2])}}>*/}
+                    {/*<LinearGradient colors={colors[2]} style={{width: sizeArrW[4], height: sizeArrH[2],backgroundColor:'transparent'}}>*/}
+                        {/*<Text>{pages[2]}</Text>*/}
+                    {/*</LinearGradient>*/}
+                {/*</TouchableOpacity>*/}
+                {/*<TouchableOpacity style={{position: 'absolute', left: sizeArrW[5], top:sizeArrH[6]}} onPress={() => {this.props.navigation.navigate(pages[3])}}>*/}
+                    {/*<LinearGradient colors={colors[3]} style={{width: sizeArrW[4], height: sizeArrH[2],backgroundColor:'transparent'}}>*/}
+                        {/*<Text>{pages[3]}</Text>*/}
+                    {/*</LinearGradient>*/}
+                {/*</TouchableOpacity>*/}
+                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[11], top:sizeArrH[2],backgroundColor:'#ffffe6',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[0])}}>
                         <Text>{pages[0]}</Text>
-                    </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[2], top:sizeArrH[11]}} onPress={() => {this.props.navigation.navigate(pages[1])}}>
-                    <LinearGradient colors={colors[1]} style={{width: sizeArrW[5], height: sizeArrH[2],backgroundColor:'transparent'}}>
+                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[2], top:sizeArrH[11],backgroundColor:'#fbffcc',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[1])}}>
                         <Text>{pages[1]}</Text>
-                    </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[13], top:sizeArrH[13]}} onPress={() => {this.props.navigation.navigate(pages[2])}}>
-                    <LinearGradient colors={colors[2]} style={{width: sizeArrW[4], height: sizeArrH[2],backgroundColor:'transparent'}}>
+                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[13], top:sizeArrH[13],backgroundColor:'#ffee94',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[2])}}>
                         <Text>{pages[2]}</Text>
-                    </LinearGradient>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[5], top:sizeArrH[6]}} onPress={() => {this.props.navigation.navigate(pages[3])}}>
-                    <LinearGradient colors={colors[3]} style={{width: sizeArrW[4], height: sizeArrH[2],backgroundColor:'transparent'}}>
+                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[5], top:sizeArrH[6],backgroundColor:'#ffd48a',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[3])}}>
                         <Text>{pages[3]}</Text>
-                    </LinearGradient>
                 </TouchableOpacity>
-
             </View>
         );
     }
