@@ -10,7 +10,7 @@ import {
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
 
-export default class PoemDetail extends Component {
+export default class SearchResult extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,48 +57,21 @@ export default class PoemDetail extends Component {
         this.setState({showValue: inputData});
     }
 
-    /**
-     * 跳转到搜索页
-     */
     showData=()=>{
+        alert(this.state.showValue);
         let me = this;
-        console.log('me', me);
         service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, jsonType: true}).then((response) => {
             console.log('response', response);
             if (response.ShiData && response.ShiData.length > 0) {
-                const navigateAction = NavigationActions.navigate({
-                    routeName: 'Result',
-                    params: {
-                        result: response
-                    }
-                });
-                this.props.navigation.dispatch(navigateAction);
-            }
-        });
-    }
 
-    componentWillReceiveProps(nextProps) {
-        this.getPoemDetail(this.state.id);
-        this.setState({
-            id: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.id || ''
-        })
-    }
-
-    render() {
-        let me = this;
-        const { navigation } = this.props;
-        let id = '', title = '', subTitle = '', preface = '', content = '';
-        if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
-            const data = navigation.state.params.data;
-            console.log('data', data);
-            if(data){
-                id = data.Id || '';
-                title = data.Title && data.Title.Content || '';
-                subTitle = data.Subtitle && data.Subtitle.Content || '';
-                preface = data.Preface || '' ;
+                let data = response.ShiData[0];
+                let title = data.Title.Content;
+                let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
+                let preface = data.Preface;
+                let content = '';
                 if(data.Clauses && data.Clauses.length>0){
                     data.Clauses.forEach((item,index)=>{
-                        if(index%2 === 1){
+                        if(index%2 == 1){
                             content += item.Content + '\n';
                         }else{
                             content += item.Content;
@@ -106,31 +79,88 @@ export default class PoemDetail extends Component {
 
                     });
                 }
+                me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
             }
-        }else{
-            id = me.state.id;
-            title = me.state.title;
-            subTitle = me.state.subTitle;
-            preface = me.state.preface ;
-            content = me.state.content;
+        });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            id: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.id || ''
+        })
+    }
+
+    /**
+     * 跳转到诗词详情页
+     */
+    goToPoemDetail = (e, item) => {
+        console.log('e', e);
+        console.log('item', item);
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'PoemDetail',
+            params: {
+                id: item.Id,
+                data: item
+            }
+        });
+        this.props.navigation.dispatch(navigateAction);
+    }
+
+    renderResult = () =>{
+        const { navigation } = this.props;
+        let results = [];
+        if(navigation && navigation.state && navigation.state.params && navigation.state.params.result){
+            const result = navigation.state.params.result;
+            console.log('result', result);
+            const { ShiData } = result;
+            if(ShiData && Array.isArray(ShiData)){
+                ShiData.forEach((item,index)=>{
+                    console.log('item.Title', item.Title.Comments);
+                    results.push(
+                        <TouchableOpacity key={index} onPress={e=>this.goToPoemDetail(e, item)}>
+                            <Text Style={styles.allTitle}>
+                                {item.Title.Content || ''}
+                            </Text>
+                        </TouchableOpacity>
+                    )
+                })
+            }
         }
+        return results;
+        // if()
+    }
+
+    render() {
+        let me = this;
+        console.log('this.props', this.props);
+
+        // let data = response.ShiData[0];
+        // let title = data.Title.Content;
+        // let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
+        // let preface = data.Preface;
+        // let content = '';
+        // if(data.Clauses && data.Clauses.length>0){
+        //     data.Clauses.forEach((item,index)=>{
+        //         if(index%2 == 1){
+        //             content += item.Content + '\n';
+        //         }else{
+        //             content += item.Content;
+        //         }
+        //
+        //     });
+        // }
+        // me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
+
+
+        const {id, title, subTitle, preface, content,} = me.state;
         let inputTag = <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>;
         let touchableTag = <TouchableOpacity onPress={this.showData.bind(this)}><View style={styles.btn}><Text style={styles.wordC}>搜索</Text></View></TouchableOpacity>
         return (
-            id ?
-            <View style={styles.container}>
-                {inputTag}{touchableTag}
-                <Text Style={styles.allTitle}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Text>{subTitle}</Text>
-                </Text>
-                <Text style={styles.preface}>{preface}</Text>
-                <Text style={styles.content}>{content}</Text>
-            </View>
-                :
-                <View style={styles.container}>
-                    <Text style={{marginTop: 10}}>暂无数据</Text>
-                </View>)
+            <View style={styles.container}>{inputTag}{touchableTag}
+                {
+                    this.renderResult()
+                }
+            </View>)
     }
 }
 
@@ -138,11 +168,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        alignItems:'center',
+        // alignItems:'center',
         backgroundColor: 'white'
     },
     allTitle: {
-        marginTop: 10
+        marginTop: 10,
+        textAlign: 'left'
     },
     title: {
         fontSize: 18
@@ -164,11 +195,10 @@ const styles = StyleSheet.create({
     },
     inputStyle:{
         width:280,
-        height:40,
+        height:30,
         borderColor:"black",
         borderWidth:1,
         marginLeft:5,
-        fontSize: 12,
     },
     btn:{
         width:85,

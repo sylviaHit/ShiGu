@@ -13,6 +13,7 @@ import { createStackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './src/redux/createStore';
 import PoemDetail from "./src/pages/poetry/PoemDetail";
+import SearchResult from "./src/pages/poetry/SearchResult";
 
 const store = configureStore();
 
@@ -23,10 +24,11 @@ const RootStack = createStackNavigator(
         PoemDetail: {screen: PoemDetail},
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
-        Person: { screen: Person }
+        Person: { screen: Person },
+        Result: { screen: SearchResult }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Poetry',
         mode: 'modal',
         // headerMode: 'none',
     }

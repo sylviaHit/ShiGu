@@ -33,7 +33,7 @@ export default class Poetry extends Component {
           circleSize={20}
           circleColor='rgb(45,156,219)'
           lineColor='rgb(45,156,219)'
-          timeContainerStyle={{minWidth:52, marginTop: -5}}
+          timeContainerStyle={{minWidth:52}}
           timeStyle={{textAlign: 'center', backgroundColor:'#ff9797', color:'white', padding:5, borderRadius:13}}
           descriptionStyle={{color:'gray'}}
           innerCircle={'dot'}
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingLeft: 20,
-    paddingRight: 20,
+    // paddingRight: 20,
     paddingBottom: 20,
     backgroundColor:'white'
   },
