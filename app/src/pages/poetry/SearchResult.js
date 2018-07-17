@@ -25,34 +25,6 @@ export default class SearchResult extends Component {
         this.onChangeText = this.onChangeText.bind(this);
     }
 
-    componentWillMount() {
-        this.getPoemDetail(this.state.id);
-    }
-
-    getPoemDetail = (id) => {
-        let me = this;
-        service.get('https://api.sou-yun.com/api/poem', {key: id, jsonType: true}).then((response) => {
-            if (response.ShiData && response.ShiData.length > 0) {
-                let data = response.ShiData[0];
-                let title = data.Title.Content;
-                let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
-                let preface = data.Preface;
-                let content = '';
-                if(data.Clauses && data.Clauses.length>0){
-                    data.Clauses.forEach((item,index)=>{
-                        if(index%2 == 1){
-                            content += item.Content + '\n';
-                        }else{
-                            content += item.Content;
-                        }
-
-                    });
-                }
-                me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
-            }
-        });
-    };
-
     onChangeText=(inputData)=>{
         this.setState({showValue: inputData});
     }
@@ -63,7 +35,6 @@ export default class SearchResult extends Component {
         service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, jsonType: true}).then((response) => {
             console.log('response', response);
             if (response.ShiData && response.ShiData.length > 0) {
-
                 let data = response.ShiData[0];
                 let title = data.Title.Content;
                 let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
@@ -76,7 +47,6 @@ export default class SearchResult extends Component {
                         }else{
                             content += item.Content;
                         }
-
                     });
                 }
                 me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
@@ -119,7 +89,7 @@ export default class SearchResult extends Component {
                     results.push(
                         <TouchableOpacity key={index} onPress={e=>this.goToPoemDetail(e, item)}>
                             <Text Style={styles.allTitle}>
-                                {item.Title.Content || ''}
+                                《{item.Title.Content || ''}》
                             </Text>
                         </TouchableOpacity>
                     )

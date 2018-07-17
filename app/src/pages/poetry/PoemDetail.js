@@ -5,10 +5,13 @@ import {
     View,
     Text,
     TextInput,
-    TouchableOpacity
+    TouchableOpacity,
+    ScrollView,
+    Button
 } from 'react-native';
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
+import Dimensions from 'Dimensions';
 
 export default class PoemDetail extends Component {
     constructor(props) {
@@ -23,6 +26,8 @@ export default class PoemDetail extends Component {
         }
         // 诗词查询输入框
         this.onChangeText = this.onChangeText.bind(this);
+        this.screenWidth = Dimensions.get('window').width;
+        this.screenHeight =  Dimensions.get('window').height;
     }
 
     componentWillMount() {
@@ -114,19 +119,29 @@ export default class PoemDetail extends Component {
             preface = me.state.preface ;
             content = me.state.content;
         }
-        let inputTag = <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>;
-        let touchableTag = <TouchableOpacity onPress={this.showData.bind(this)}><View style={styles.btn}><Text style={styles.wordC}>搜索</Text></View></TouchableOpacity>
         return (
             id ?
-            <View style={styles.container}>
-                {inputTag}{touchableTag}
-                <Text Style={styles.allTitle}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Text>{subTitle}</Text>
-                </Text>
-                <Text style={styles.preface}>{preface}</Text>
-                <Text style={styles.content}>{content}</Text>
-            </View>
+                <View style={{ height: this.screenHeight, backgroundColor: 'white' }}>
+                    <View style={styles.search}>
+                        <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
+                        <TouchableOpacity onPress={this.showData.bind(this)}>
+                            <View style={styles.btn}>
+                                <Text style={styles.wordC}>搜索</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <ScrollView>
+                        <View style={styles.container}>
+                            <Text Style={styles.allTitle}>
+                                <Text style={styles.title}>{title}</Text>
+                                <Text>{subTitle}</Text>
+                            </Text>
+                            <Text style={styles.preface}>{preface}</Text>
+                            <Text style={styles.content}>{content}</Text>
+                        </View>
+                    </ScrollView>
+                </View>
+
                 :
                 <View style={styles.container}>
                     <Text style={{marginTop: 10}}>暂无数据</Text>
@@ -135,6 +150,11 @@ export default class PoemDetail extends Component {
 }
 
 const styles = StyleSheet.create({
+    search: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center'
+    },
     container: {
         flex: 1,
         padding: 20,
