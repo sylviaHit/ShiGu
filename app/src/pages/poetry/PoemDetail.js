@@ -12,8 +12,14 @@ import {
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
 import Dimensions from 'Dimensions';
+import Search from './Search';
+import Carousel from 'react-native-snap-carousel';
 
 export default class PoemDetail extends Component {
+    static navigationOptions = {
+        title: '',
+        header: null
+    };
     constructor(props) {
         super(props);
         this.state = {
@@ -31,32 +37,7 @@ export default class PoemDetail extends Component {
     }
 
     componentWillMount() {
-        this.getPoemDetail(this.state.id);
     }
-
-    getPoemDetail = (id) => {
-        let me = this;
-        service.get('https://api.sou-yun.com/api/poem', {key: id, jsonType: true}).then((response) => {
-            if (response.ShiData && response.ShiData.length > 0) {
-                let data = response.ShiData[0];
-                let title = data.Title.Content;
-                let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
-                let preface = data.Preface;
-                let content = '';
-                if(data.Clauses && data.Clauses.length>0){
-                    data.Clauses.forEach((item,index)=>{
-                        if(index%2 == 1){
-                            content += item.Content + '\n';
-                        }else{
-                            content += item.Content;
-                        }
-
-                    });
-                }
-                me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
-            }
-        });
-    };
 
     onChangeText=(inputData)=>{
         this.setState({showValue: inputData});
@@ -89,18 +70,24 @@ export default class PoemDetail extends Component {
         })
     }
 
-    render() {
+    /**
+     * 轮播图渲染
+     */
+    _renderItem = ({item, index}) => {
         let me = this;
         const { navigation } = this.props;
-        let id = '', title = '', subTitle = '', preface = '', content = '';
+        let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
+            console.log('2222222');
             const data = navigation.state.params.data;
             console.log('data', data);
             if(data){
                 id = data.Id || '';
                 title = data.Title && data.Title.Content || '';
-                subTitle = data.Subtitle && data.Subtitle.Content || '';
+                subTitle = data.SubTitle && data.SubTitle.Content || '';
+                author = data.Author || '';
                 preface = data.Preface || '' ;
+                dynasty = data.Dynasty || '';
                 if(data.Clauses && data.Clauses.length>0){
                     data.Clauses.forEach((item,index)=>{
                         if(index%2 === 1){
@@ -112,36 +99,70 @@ export default class PoemDetail extends Component {
                     });
                 }
             }
-        }else{
-            id = me.state.id;
-            title = me.state.title;
-            subTitle = me.state.subTitle;
-            preface = me.state.preface ;
-            content = me.state.content;
         }
         return (
-            id ?
-                <View style={{ height: this.screenHeight, backgroundColor: 'white' }}>
-                    <View style={styles.search}>
-                        <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
-                        <TouchableOpacity onPress={this.showData.bind(this)}>
-                            <View style={styles.btn}>
-                                <Text style={styles.wordC}>搜索</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <ScrollView>
-                        <View style={styles.container}>
-                            <Text Style={styles.allTitle}>
-                                <Text style={styles.title}>{title}</Text>
-                                <Text>{subTitle}</Text>
-                            </Text>
-                            <Text style={styles.preface}>{preface}</Text>
-                            <Text style={styles.content}>{content}</Text>
-                        </View>
-                    </ScrollView>
+            <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
+                <View style={styles.bodyContainer}>
+                    <Text Style={styles.allTitle}>
+                        <Text style={styles.title}>{title}{subTitle ? `·${subTitle}` : ''}</Text>
+                    </Text>
+                    <Text>{dynasty ? `[${dynasty}]` : ''}{author}</Text>
+                    <Text style={styles.preface}>{preface}</Text>
+                    <Text style={styles.content}>{content}</Text>
                 </View>
+            </TouchableOpacity>
+        );
+    }
 
+    render() {
+        let me = this;
+        const { navigation } = this.props;
+        let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
+        let data;
+        if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
+            console.log('2222222');
+            data = navigation.state.params.data;
+            console.log('data', data);
+            if(data){
+                id = data.Id || '';
+                title = data.Title && data.Title.Content || '';
+                subTitle = data.SubTitle && data.SubTitle.Content || '';
+                author = data.Author || '';
+                preface = data.Preface || '' ;
+                dynasty = data.Dynasty || '';
+                if(data.Clauses && data.Clauses.length>0){
+                    data.Clauses.forEach((item,index)=>{
+                        if(index%2 === 1){
+                            content += item.Content + '\n';
+                        }else{
+                            content += item.Content;
+                        }
+                    });
+                }
+            }
+        }
+
+        return (
+            id ?
+                <View style={styles.container}>
+                    <Search navigation={this.props.navigation}/>
+
+                    <View style={styles.container}>
+                        <ScrollView>
+                            <Carousel
+                                ref={(c) => { this._carousel = c; }}
+                                currentIndex={this.state.currentIndex}
+                                data={[data]}
+                                renderItem={this._renderItem}
+                                sliderWidth={this.screenWidth-60}
+                                itemWidth={this.screenWidth-60}
+                                layout={'default'}
+                                firstItem={this.state.currentIndex}
+                                onSnapToItem = {this.onSnapToItem}
+                            />
+                        </ScrollView>
+                    </View>
+                </View>
                 :
                 <View style={styles.container}>
                     <Text style={{marginTop: 10}}>暂无数据</Text>
@@ -149,13 +170,24 @@ export default class PoemDetail extends Component {
     }
 }
 
+const screenWidth = Dimensions.get('window').width;
+const screenHeight =  Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
+    container: {
+        padding: 20,
+        paddingRight: 0,
+        paddingLeft: 0,
+        alignItems:'center',
+        backgroundColor: '#fff',
+        height: screenHeight,
+    },
     search: {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center'
     },
-    container: {
+    bodyContainer: {
         flex: 1,
         padding: 20,
         alignItems:'center',
@@ -169,7 +201,7 @@ const styles = StyleSheet.create({
     },
     preface: {
         marginTop: 10,
-        color: 'red',
+        color: '#f00',
         backgroundColor: '#faf1cf',
         fontSize: 12,
         lineHeight:18
