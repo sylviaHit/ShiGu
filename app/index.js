@@ -28,7 +28,7 @@ const RootStack = createStackNavigator(
         Result: { screen: SearchResult }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Poetry',
         mode: 'modal',
         // headerMode: 'none',
     }

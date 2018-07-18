@@ -65,7 +65,7 @@ export default class Search extends Component {
 
     render() {
         return (
-            <View>
+            <View style={styles.container}>
                 <View style={styles.search}>
                     <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
                     <TouchableOpacity onPress={this.showData.bind(this)}>
@@ -102,6 +102,10 @@ export default class Search extends Component {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        paddingTop: 20,
+        paddingBottom: 20,
+    },
     search: {
         alignItems: 'center',
         flexDirection: 'row',

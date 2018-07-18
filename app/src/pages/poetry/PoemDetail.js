@@ -64,10 +64,10 @@ export default class PoemDetail extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.getPoemDetail(this.state.id);
-        this.setState({
-            id: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.id || ''
-        })
+        // this.getPoemDetail(this.state.id);
+        // this.setState({
+        //     id: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.id || ''
+        // })
     }
 
     /**
@@ -102,7 +102,7 @@ export default class PoemDetail extends Component {
         }
         return (
             <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
-                <View style={styles.bodyContainer}>
+                <View style={styles.container}>
                     <Text Style={styles.allTitle}>
                         <Text style={styles.title}>{title}{subTitle ? `·${subTitle}` : ''}</Text>
                     </Text>
@@ -144,24 +144,21 @@ export default class PoemDetail extends Component {
 
         return (
             id ?
-                <View style={styles.container}>
+                <View style={styles.wrap}>
                     <Search navigation={this.props.navigation}/>
-
-                    <View style={styles.container}>
-                        <ScrollView>
-                            <Carousel
-                                ref={(c) => { this._carousel = c; }}
-                                currentIndex={this.state.currentIndex}
-                                data={[data]}
-                                renderItem={this._renderItem}
-                                sliderWidth={this.screenWidth-60}
-                                itemWidth={this.screenWidth-60}
-                                layout={'default'}
-                                firstItem={this.state.currentIndex}
-                                onSnapToItem = {this.onSnapToItem}
-                            />
-                        </ScrollView>
-                    </View>
+                    <ScrollView style={styles.bodyContainer}>
+                        <Carousel
+                            ref={(c) => { this._carousel = c; }}
+                            currentIndex={this.state.currentIndex}
+                            data={[data]}
+                            renderItem={this._renderItem}
+                            sliderWidth={screenWidth}
+                            itemWidth={screenWidth}
+                            layout={'default'}
+                            firstItem={this.state.currentIndex}
+                            onSnapToItem = {this.onSnapToItem}
+                        />
+                    </ScrollView>
                 </View>
                 :
                 <View style={styles.container}>
@@ -174,10 +171,7 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight =  Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
-    container: {
-        padding: 20,
-        paddingRight: 0,
-        paddingLeft: 0,
+    wrap: {
         alignItems:'center',
         backgroundColor: '#fff',
         height: screenHeight,
@@ -188,8 +182,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     bodyContainer: {
-        flex: 1,
-        padding: 20,
+        width: screenWidth,
+        padding: 0,
+    },
+    container: {
+        width: screenWidth,
+        padding: 0,
         alignItems:'center',
         backgroundColor: 'white'
     },
@@ -200,8 +198,11 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     preface: {
+        width: screenWidth-60,
+        padding: 3,
         marginTop: 10,
         color: '#f00',
+        borderRadius: 5,
         backgroundColor: '#faf1cf',
         fontSize: 12,
         lineHeight:18
