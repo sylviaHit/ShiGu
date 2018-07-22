@@ -73,7 +73,6 @@ export default class Search extends Component {
                             <Text style={styles.wordC}>搜索</Text>
                         </View>
                     </TouchableOpacity>
-
                 </View>
                 <View style={{alignItems:'center'}}>
                     <RadioModal

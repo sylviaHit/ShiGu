@@ -32,7 +32,7 @@ const RootStack = createStackNavigator(
         Game: { screen: Game }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Game',
         mode: 'modal',
         // headerMode: 'none',
     }

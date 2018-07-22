@@ -4,8 +4,13 @@ export function actionCreate(type, content) {
         content: content
     }
 }
+const initialState = {
+    game: {
+        mention: false
+    }
+};
 
-export default function reducer(state, action) {
+export default function reducer(state = initialState, action) {
     let newState = Object.assign({}, state);
     switch (action.type){
         case 'SET_POINT_DETAIL':
