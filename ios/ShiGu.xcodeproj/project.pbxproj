@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -40,6 +39,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		E12BC4F1CE0DCE0E25C19D85 /* libPods-ShiGu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A59A028E251887E07623248 /* libPods-ShiGu.a */; };
+		2F2DFFD67D90421B9D6A2404 /* 华文行楷.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4B5E558CE8DD4DD2AF046954 /* 华文行楷.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -364,6 +364,7 @@
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		BF6BD6DD4EBEBC99035DD17B /* Pods-ShiGu.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShiGu.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShiGu/Pods-ShiGu.debug.xcconfig"; sourceTree = "<group>"; };
 		EEFCD5333C104841AD2ADCA9 /* BVLinearGradient.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = BVLinearGradient.xcodeproj; path = "../node_modules/react-native-linear-gradient/BVLinearGradient.xcodeproj"; sourceTree = "<group>"; };
+		4B5E558CE8DD4DD2AF046954 /* 华文行楷.ttf */ = {isa = PBXFileReference; name = "华文行楷.ttf"; path = "../app/src/utils/华文行楷.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -605,6 +606,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				ECF2D9B0CE8D71FC67885BF8 /* Pods */,
 				A23194F320D4FF1700A86DCF /* Recovered References */,
+				F59F83C33C244A95B0D2075F /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -656,6 +658,15 @@
 			);
 			name = Pods;
 			sourceTree = "<group>";
+		};
+		F59F83C33C244A95B0D2075F /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				4B5E558CE8DD4DD2AF046954 /* 华文行楷.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -1123,6 +1134,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
+				2F2DFFD67D90421B9D6A2404 /* 华文行楷.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

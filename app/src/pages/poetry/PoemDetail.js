@@ -106,8 +106,8 @@ export default class PoemDetail extends Component {
                     <Text Style={styles.allTitle}>
                         <Text style={styles.title}>{title}{subTitle ? `·${subTitle}` : ''}</Text>
                     </Text>
-                    <Text>{dynasty ? `[${dynasty}]` : ''}{author}</Text>
-                    <Text style={styles.preface}>{preface}</Text>
+                    <Text style={{fontFamily: '华文行楷'}}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
+                    { preface ? <Text style={styles.preface}>{preface}</Text> : null }
                     <Text style={styles.content}>{content}</Text>
                 </View>
             </TouchableOpacity>
@@ -162,7 +162,8 @@ export default class PoemDetail extends Component {
                 </View>
                 :
                 <View style={styles.container}>
-                    <Text style={{marginTop: 10}}>暂无数据</Text>
+                    <Text style={{marginTop: 10,
+                        fontFamily: '华文行楷'}}>暂无数据</Text>
                 </View>)
     }
 }
@@ -192,10 +193,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     allTitle: {
-        marginTop: 10
+        marginTop: 10,
+        fontFamily: '华文行楷'
     },
     title: {
-        fontSize: 18
+        fontSize: 18,
+        fontFamily: '华文行楷'
     },
     preface: {
         width: screenWidth-60,
@@ -205,13 +208,16 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: '#faf1cf',
         fontSize: 12,
+        fontFamily: '华文行楷',
         lineHeight:18
     },
     content: {
         marginTop: 10,
-        lineHeight:28
+        lineHeight:28,
+        fontSize: 16,
+        fontFamily: '华文行楷'
     },
-    mycontainer:{
+    myContainer:{
         marginTop:30,
         flexDirection:"row",
     },
@@ -222,6 +228,7 @@ const styles = StyleSheet.create({
         borderWidth:1,
         marginLeft:5,
         fontSize: 12,
+        fontFamily: '华文行楷'
     },
     btn:{
         width:85,
@@ -234,5 +241,6 @@ const styles = StyleSheet.create({
     wordC:{
         color:"white",
         fontSize:18,
+        fontFamily: '华文行楷'
     }
 });

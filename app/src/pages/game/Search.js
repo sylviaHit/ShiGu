@@ -89,7 +89,7 @@ export default class Search extends Component {
                             width: 60
                         }}
                     >
-                        <Text style={styles.radioOption} value="all">全诗</Text>
+                        <Text value="all">全诗</Text>
                         <Text value="title">诗题</Text>
                         <Text value="sentence">诗句</Text>
                         <Text value="author">作者</Text>
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 5,
         marginLeft:5,
         fontSize: 12,
-        fontFamily: '华文行楷',
         padding: 0,
         paddingLeft: 10,
     },
@@ -142,9 +141,5 @@ const styles = StyleSheet.create({
     wordC:{
         color: '#333',
         fontSize:18,
-        fontFamily: '华文行楷'
-    },
-    radioOption: {
-        fontFamily: '华文行楷'
     }
 });

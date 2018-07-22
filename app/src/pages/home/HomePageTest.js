@@ -25,7 +25,7 @@ class HomePageTest extends Component{
     }
 
     render() {
-        let pages=['Poetry', 'Person', 'Road', 'CultureMap', 'Scene'];
+        let pages=['Poetry', 'Person', 'Game', 'CultureMap', 'Scene'];
         let colors = [
             ['#f77695', '#dfe3e4', '#55236a'],
             ['#55843e', '#c5ffa9', '#7898b9'],
@@ -66,16 +66,24 @@ class HomePageTest extends Component{
                 <View style={{width: sizeArrW[2], height: sizeArrH[1], position: 'absolute', left: sizeArrW[1], top:sizeArrH[6], backgroundColor: '#fff7c4'}}/>
                 {/*<View style={{width: sizeArrW[2], height: sizeArrH[0], position: 'absolute', left: sizeArrW[2], top:sizeArrH[16], backgroundColor: '#343434'}}/>*/}
                 <View style={{width: sizeArrW[1], height: sizeArrH[0], position: 'absolute', left: sizeArrW[2], top:sizeArrH[3], backgroundColor: '#fff7c4'}}/>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[11], top:sizeArrH[2],backgroundColor:'#ffffe6',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[0])}}>
+                <TouchableOpacity
+                    style={{position: 'absolute', left: sizeArrW[11], top:sizeArrH[2],backgroundColor:'#ffffe6',width: sizeArrW[4], height: sizeArrH[2]}}
+                    onPress={() => {this.props.navigation.navigate(pages[0])}}>
                         <Text>{pages[0]}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[2], top:sizeArrH[11],backgroundColor:'#fbffcc',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[1])}}>
+                <TouchableOpacity
+                    style={{position: 'absolute', left: sizeArrW[2], top:sizeArrH[11],backgroundColor:'#fbffcc',width: sizeArrW[4], height: sizeArrH[2]}}
+                    onPress={() => {this.props.navigation.navigate(pages[1])}}>
                         <Text>{pages[1]}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[13], top:sizeArrH[13],backgroundColor:'#ffee94',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[2])}}>
+                <TouchableOpacity
+                    style={{position: 'absolute', left: sizeArrW[13], top:sizeArrH[13],backgroundColor:'#ffee94',width: sizeArrW[4], height: sizeArrH[2]}}
+                    onPress={() => {this.props.navigation.navigate(pages[2])}}>
                         <Text>{pages[2]}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{position: 'absolute', left: sizeArrW[5], top:sizeArrH[6],backgroundColor:'#ffd48a',width: sizeArrW[4], height: sizeArrH[2]}} onPress={() => {this.props.navigation.navigate(pages[3])}}>
+                <TouchableOpacity
+                    style={{position: 'absolute', left: sizeArrW[5], top:sizeArrH[6],backgroundColor:'#ffd48a',width: sizeArrW[4], height: sizeArrH[2]}}
+                    onPress={() => {this.props.navigation.navigate(pages[3])}}>
                         <Text>{pages[3]}</Text>
                 </TouchableOpacity>
             </View>

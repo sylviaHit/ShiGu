@@ -62,8 +62,7 @@ export default class Poetry extends Component {
                         padding: 5,
                         borderRadius: 13
                     }}
-                    descriptionStyle={{color: 'gray',
-                        fontFamily: '华文行楷'}}
+                    descriptionStyle={{color: 'gray'}}
                     innerCircle={'dot'}
                     options={{
                         style: {paddingTop: 5}
