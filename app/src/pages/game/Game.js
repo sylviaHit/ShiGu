@@ -103,9 +103,9 @@ class Game extends Component {
         let titles = '';
         if(poem && Array.isArray(poem) && poem[0]){
             let item = poem[0];
-            console.log('item.Title.Content', item.Title.Content);
+            console.log('item.Title.Content', item.Title.Content.split(''));
             if(item.Title && item.Title.Content){
-                titles = `《${item.Title.Content}》`;
+                titles = `《${item.Title.Content.split(' ')[0]}》`;
             }
         }
         return titles;
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     title: {
         width:155,
         fontSize: 18,
-        fontFamily: '华文行楷',
+        // fontFamily: '华文行楷',
         textDecorationLine: 'underline',
         textAlign: 'right',
         height: 50,

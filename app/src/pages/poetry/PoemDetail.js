@@ -103,10 +103,10 @@ export default class PoemDetail extends Component {
         return (
             <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
                 <View style={styles.container}>
-                    <Text Style={styles.allTitle}>
-                        <Text style={styles.title}>{title}{subTitle ? `·${subTitle}` : ''}</Text>
+                    <Text style={styles.allTitle}>
+                        {title}{subTitle ? `·${subTitle}` : ''}
                     </Text>
-                    <Text style={{fontFamily: '华文行楷'}}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
+                    <Text>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
                     { preface ? <Text style={styles.preface}>{preface}</Text> : null }
                     <Text style={styles.content}>{content}</Text>
                 </View>
@@ -120,9 +120,8 @@ export default class PoemDetail extends Component {
         let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
         let data;
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
-            console.log('2222222');
-            data = navigation.state.params.data;
-            console.log('data', data);
+            console.log('11111');
+            const data = navigation.state.params.data;
             if(data){
                 id = data.Id || '';
                 title = data.Title && data.Title.Content || '';
@@ -137,6 +136,7 @@ export default class PoemDetail extends Component {
                         }else{
                             content += item.Content;
                         }
+
                     });
                 }
             }
@@ -148,17 +148,27 @@ export default class PoemDetail extends Component {
                 <View style={styles.wrap}>
                     <Search navigation={this.props.navigation}/>
                     <ScrollView style={styles.bodyContainer}>
-                        <Carousel
-                            ref={(c) => { this._carousel = c; }}
-                            currentIndex={this.state.currentIndex}
-                            data={[data]}
-                            renderItem={this._renderItem}
-                            sliderWidth={screenWidth}
-                            itemWidth={screenWidth}
-                            layout={'default'}
-                            firstItem={this.state.currentIndex}
-                            onSnapToItem = {this.onSnapToItem}
-                        />
+                        <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
+                            <View style={styles.container}>
+                                <Text style={styles.allTitle}>
+                                    {title}{subTitle ? `·${subTitle}` : ''}
+                                </Text>
+                                <Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
+                                { preface ? <Text style={styles.preface}>{preface}</Text> : null }
+                                <Text style={styles.content}>{content}</Text>
+                            </View>
+                        </TouchableOpacity>
+                        {/*<Carousel*/}
+                            {/*ref={(c) => { this._carousel = c; }}*/}
+                            {/*currentIndex={this.state.currentIndex}*/}
+                            {/*data={[data]}*/}
+                            {/*renderItem={this._renderItem}*/}
+                            {/*sliderWidth={screenWidth}*/}
+                            {/*itemWidth={screenWidth}*/}
+                            {/*layout={'default'}*/}
+                            {/*firstItem={this.state.currentIndex}*/}
+                            {/*onSnapToItem = {this.onSnapToItem}*/}
+                        {/*/>*/}
                     </ScrollView>
                 </View>
                 :
@@ -195,11 +205,16 @@ const styles = StyleSheet.create({
     },
     allTitle: {
         marginTop: 10,
-        fontFamily: '华文行楷'
+        fontSize: 20,
+        // fontFamily: '华文行楷',
+        width: 300,
     },
     title: {
         fontSize: 18,
-        fontFamily: '华文行楷'
+        width: 100,
+        borderColor:"black",
+        borderWidth:1,
+        // fontFamily: '华文行楷'
     },
     preface: {
         width: screenWidth-60,
@@ -209,14 +224,14 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: '#faf1cf',
         fontSize: 12,
-        fontFamily: '华文行楷',
+        // fontFamily: '华文行楷',
         lineHeight:18
     },
     content: {
         marginTop: 10,
         lineHeight:28,
         fontSize: 16,
-        fontFamily: '华文行楷'
+        // fontFamily: '华文行楷'
     },
     myContainer:{
         marginTop:30,
