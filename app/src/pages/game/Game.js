@@ -25,11 +25,34 @@ class Game extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            closeMention: false
-        }
+            closeMention: false,
+            keyWords: '人',
+            text: '',
+            data: []
+        };
+        this.pageNo = 0;
+        this.dataAll = [];
+        this.data = [];
+    }
+
+    getData = () => {
+        service.get('https://api.sou-yun.com/api/poem', {key: this.state.keyWords, scope: 3, pageNo: this.pageNo, jsonType: true}).then((response) => {
+            console.log('response', response);
+            console.log(this.state.text);
+            if (response.ShiData && response.ShiData.length > 0) {
+                this.dataAll.push(response.ShiData);
+                if(response.ShiData.length === 20){
+                    this.pageNo += 1;
+                    this.getData();
+                }
+            }
+        });
     }
 
     componentWillMount() {
+        this.dataAll = [];
+        // this.getData();
+        console.log('this.dataAll', this.dataAll);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -40,27 +63,26 @@ class Game extends Component {
      * 搜索内容改变
      */
     onChangeText=(inputData)=>{
-        this.setState({showValue: inputData});
+        this.setState({text: inputData});
     }
 
 
     /**
      * 跳转到搜索页
      */
-    showData=()=>{
-        let me = this;
-        console.log('me', me, me.state.initId);
-
-        service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, scope: this.state.initId, jsonType: true}).then((response) => {
+    submit=()=>{
+        service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
             console.log('response', response);
-            if (response.ShiData && response.ShiData.length > 0) {
-                const navigateAction = NavigationActions.navigate({
-                    routeName: 'Result',
-                    params: {
-                        result: response
-                    }
+            let newData = this.state.data.concat();
+            if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(this.state.keyWords) !== -1) {
+                console.log('行令成功', [...this.state.data]);
+                newData.push({
+                    sentence: this.state.text,
+                    poem: response.ShiData
                 });
-                this.props.navigation.dispatch(navigateAction);
+                this.setState({
+                    data: newData
+                })
             }
         });
     }
@@ -72,6 +94,60 @@ class Game extends Component {
         this.setState({
             closeMention: true
         })
+    }
+
+    /**
+     * 渲染标题
+     */
+    renderTitle = (poem) => {
+        let titles = '';
+        if(poem && Array.isArray(poem) && poem[0]){
+            let item = poem[0];
+            console.log('item.Title.Content', item.Title.Content);
+            if(item.Title && item.Title.Content){
+                titles = `《${item.Title.Content}》`;
+            }
+        }
+        return titles;
+
+    }
+
+    /**
+     * 渲染诗句
+     */
+    renderSentence = () => {
+        let sentence = [];
+        if(this.state.data && Array.isArray(this.state.data)){
+            this.state.data.forEach((item, index) => {
+                sentence.push(
+                    <View key={index} style={styles.container}>
+                        <Text style={styles.sentence}>{item.sentence}</Text>
+                        <TouchableOpacity onPress={e=>this.goToPoemDetail(e, item.poem[index])}>
+                            <Text style={styles.title}>
+                                {this.renderTitle(item.poem)}
+                            </Text>
+                        </TouchableOpacity>
+
+                    </View>
+                )
+            })
+        }
+        return sentence;
+    }
+
+    /**
+     * 跳转到诗词详情页
+     */
+    goToPoemDetail = (e, item) => {
+        console.log('e', e, 'item', item);
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'PoemDetail',
+            params: {
+                id: item.Id,
+                data: item
+            }
+        });
+        this.props.navigation.dispatch(navigateAction);
     }
 
     render() {
@@ -89,12 +165,15 @@ class Game extends Component {
                     </View>
                     <View style={styles.input}>
                         <TextInput placeholder='请输入包含“人”字的诗句' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
-                        <TouchableOpacity onPress={this.showData.bind(this)}>
+                        <TouchableOpacity onPress={this.submit}>
                             <View style={styles.btn}>
                                 <Text style={styles.submit}>提交</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
+                    <ScrollView style={styles.bodyContainer}>
+                        {this.renderSentence()}
+                    </ScrollView>
                     {/*<View style={{width: screenWidth, height: screenHeight, position: 'absolute'}}>*/}
                         {/*<PopupDialog*/}
                             {/*width={0.8}*/}
@@ -178,7 +257,6 @@ const styles = StyleSheet.create({
         borderColor:"#ccc",
         borderWidth:1,
         borderRightWidth: 0,
-        // borderRadius: 5,
         borderTopLeftRadius: 5,
         borderBottomLeftRadius: 5,
         marginLeft:5,
@@ -192,17 +270,50 @@ const styles = StyleSheet.create({
         height:50,
         borderColor:"#ccc",
         borderWidth:1,
-        // borderLeftWidth: 0,
         borderTopRightRadius: 5,
         borderBottomRightRadius: 5,
         justifyContent:"center",
         alignItems:"center",
         backgroundColor:"#d4f3d4",
-        // color: '#333'
     },
     submit: {
         fontSize: 18,
         fontFamily: '华文行楷',
+    },
+    bodyContainer: {
+        flex: 1,
+        width: 365,
+        marginTop: 20,
+        // padding: 10,
+        // borderColor:"#00f",
+        // borderWidth:1,
+    },
+    container: {
+        flexDirection: 'row',
+    },
+    sentence: {
+        fontSize: 18,
+        fontFamily: '华文行楷',
+        // backgroundColor:"#d4f3d4",
+        // borderColor:"#ccc",
+        // borderWidth:1,
+        // borderRadius: 5,
+        width:210,
+        paddingLeft: 10,
+        paddingRight: 10,
+        height: 50,
+        lineHeight: 50,
+    },
+    title: {
+        width:155,
+        fontSize: 18,
+        fontFamily: '华文行楷',
+        textDecorationLine: 'underline',
+        textAlign: 'right',
+        height: 50,
+        lineHeight: 50,
+        // borderColor:"#cc682a",
+        // borderWidth:1,
     },
     pop: {
         width: screenWidth*0.8,

@@ -141,6 +141,7 @@ export default class PoemDetail extends Component {
                 }
             }
         }
+        console.log('data', data);
 
         return (
             id ?
