@@ -139,7 +139,6 @@ class Game extends Component {
      * 跳转到诗词详情页
      */
     goToPoemDetail = (e, item) => {
-        console.log('e', e, 'item', item);
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
             params: {

@@ -64,8 +64,6 @@ export default class SearchResult extends Component {
      * 跳转到诗词详情页
      */
     goToPoemDetail = (e, item) => {
-        console.log('e', e);
-        console.log('item', item);
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
             params: {
@@ -81,7 +79,6 @@ export default class SearchResult extends Component {
         let results = [];
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.result){
             const result = navigation.state.params.result;
-            console.log('result', result);
             const { ShiData } = result;
             if(ShiData && Array.isArray(ShiData)){
                 ShiData.forEach((item,index)=>{

@@ -33,7 +33,6 @@ export default class SearchResult extends Component {
         alert(this.state.showValue);
         let me = this;
         service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, jsonType: true}).then((response) => {
-            console.log('response', response);
             if (response.ShiData && response.ShiData.length > 0) {
                 let data = response.ShiData[0];
                 let title = data.Title.Content;
@@ -64,8 +63,6 @@ export default class SearchResult extends Component {
      * 跳转到诗词详情页
      */
     goToPoemDetail = (e, item) => {
-        console.log('e', e);
-        console.log('item', item);
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
             params: {
@@ -81,11 +78,9 @@ export default class SearchResult extends Component {
         let results = [];
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.result){
             const result = navigation.state.params.result;
-            console.log('result', result);
             const { ShiData } = result;
             if(ShiData && Array.isArray(ShiData)){
                 ShiData.forEach((item,index)=>{
-                    console.log('item.Title', item.Title.Comments);
                     results.push(
                         <TouchableOpacity key={index} onPress={e=>this.goToPoemDetail(e, item)}>
                             <Text Style={styles.allTitle}>
@@ -102,7 +97,6 @@ export default class SearchResult extends Component {
 
     render() {
         let me = this;
-        console.log('this.props', this.props);
 
         // let data = response.ShiData[0];
         // let title = data.Title.Content;

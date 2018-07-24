@@ -2,7 +2,7 @@
  * homePage
  */
 import React, { Component } from 'react';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, Button} from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import data from './data.json';
 import {service} from "../../utils/service";
@@ -38,7 +38,6 @@ export default class Search extends Component {
      */
     showData=()=>{
         let me = this;
-        console.log('me', me, me.state.initId);
 
         service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, scope: this.state.initId, jsonType: true}).then((response) => {
             console.log('response', response);
