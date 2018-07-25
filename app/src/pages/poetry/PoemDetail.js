@@ -148,27 +148,14 @@ export default class PoemDetail extends Component {
                 <View style={styles.wrap}>
                     <Search navigation={this.props.navigation}/>
                     <ScrollView style={styles.bodyContainer}>
-                        <TouchableOpacity activeOpacity={0.9} onPress={e=>this._onInfoWindowPress(e, item)}>
-                            <View style={styles.container}>
-                                <Text style={styles.allTitle}>
-                                    {title}{subTitle ? `·${subTitle}` : ''}
-                                </Text>
-                                <Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
-                                { preface ? <Text style={styles.preface}>{preface}</Text> : null }
-                                <Text style={styles.content}>{content}</Text>
-                            </View>
-                        </TouchableOpacity>
-                        {/*<Carousel*/}
-                            {/*ref={(c) => { this._carousel = c; }}*/}
-                            {/*currentIndex={this.state.currentIndex}*/}
-                            {/*data={[data]}*/}
-                            {/*renderItem={this._renderItem}*/}
-                            {/*sliderWidth={screenWidth}*/}
-                            {/*itemWidth={screenWidth}*/}
-                            {/*layout={'default'}*/}
-                            {/*firstItem={this.state.currentIndex}*/}
-                            {/*onSnapToItem = {this.onSnapToItem}*/}
-                        {/*/>*/}
+                        <View style={styles.container}>
+                            <Text style={styles.allTitle}>
+                                {title}{subTitle ? `·${subTitle}` : ''}
+                            </Text>
+                            <Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
+                            { preface ? <Text style={styles.preface}>{preface}</Text> : null }
+                            <Text style={styles.content}>{content}</Text>
+                        </View>
                     </ScrollView>
                 </View>
                 :
@@ -206,15 +193,14 @@ const styles = StyleSheet.create({
     allTitle: {
         marginTop: 10,
         fontSize: 20,
-        // fontFamily: '华文行楷',
         width: 300,
+        textAlign: 'center'
     },
     title: {
         fontSize: 18,
         width: 100,
         borderColor:"black",
         borderWidth:1,
-        // fontFamily: '华文行楷'
     },
     preface: {
         width: screenWidth-60,
@@ -224,14 +210,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         backgroundColor: '#faf1cf',
         fontSize: 12,
-        // fontFamily: '华文行楷',
         lineHeight:18
     },
     content: {
         marginTop: 10,
         lineHeight:28,
         fontSize: 16,
-        // fontFamily: '华文行楷'
     },
     myContainer:{
         marginTop:30,
@@ -252,7 +236,6 @@ const styles = StyleSheet.create({
         justifyContent:"center",
         alignItems:"center",
         backgroundColor:"green",
-        // borderRadius:5
     },
     wordC:{
         color:"white",

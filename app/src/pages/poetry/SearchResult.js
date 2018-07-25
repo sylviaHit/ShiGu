@@ -9,20 +9,47 @@ import {
 } from 'react-native';
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
+import Search from './Search';
 
 export default class SearchResult extends Component {
+    static navigationOptions = {
+        title: '',
+        header: null
+    };
     constructor(props) {
         super(props);
         this.state = {
             id: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.id || 0,
+            searchValue: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.searchValue || '',
             title: '',
             subTitle: '',
             preface: '',
             content: '',
-            showValue: ''
+            showValue: '',
+            currentPage: 0,
+            data: []
         }
         // 诗词查询输入框
         this.onChangeText = this.onChangeText.bind(this);
+    }
+
+    componentWillMount(){
+        const { navigation } = this.props;
+        let results = [];
+
+        if(this.state.searchValue){
+            console.log('222222');
+            service.get('https://api.sou-yun.com/api/poem', {key: this.state.searchValue, scope: this.state.initId, pageNo: this.state.currentPage, jsonType: true}).then((response) => {
+                console.log('response', response);
+                if (response.ShiData && response.ShiData.length > 0) {
+                    this.setState({
+                        data: [response.ShiData]
+                    })
+                    this.state.data[this.state.currentPage] = response.ShiData;
+                }
+            });
+        }
+
     }
 
     onChangeText=(inputData)=>{
@@ -77,15 +104,15 @@ export default class SearchResult extends Component {
     renderResult = () =>{
         const { navigation } = this.props;
         let results = [];
-        if(navigation && navigation.state && navigation.state.params && navigation.state.params.result){
-            const result = navigation.state.params.result;
-            const { ShiData } = result;
+        console.log('this.state', this.state, this.state.data[this.state.currentPage]);
+        if(this.state.data && Array.isArray(this.state.data) && this.state.data.length !== 0 && this.state.data[this.state.currentPage]){
+            const { ShiData } = this.state.data[this.state.currentPage];
             if(ShiData && Array.isArray(ShiData)){
                 ShiData.forEach((item,index)=>{
                     console.log('item.Title', item.Title.Comments);
                     results.push(
                         <TouchableOpacity key={index} onPress={e=>this.goToPoemDetail(e, item)}>
-                            <Text Style={styles.allTitle}>
+                            <Text style={styles.allTitle}>
                                 《{item.Title.Content || ''}》
                             </Text>
                         </TouchableOpacity>
@@ -93,40 +120,71 @@ export default class SearchResult extends Component {
                 })
             }
         }
+
         return results;
         // if()
     }
 
+    /**
+     * 跳转到上一页
+     */
+    toLastPage = () => {
+        if(this.state.currentPage > 0){
+            this.setState({
+                currentPage: this.state.currentPage - 1
+            })
+        }
+
+    }
+
+    toNextPage = () => {
+        this.setState({
+            currentPage: this.state.currentPage + 1
+        })
+    }
+
+    /**
+     * 跳转到当前点击页
+     */
+    toPressPage = (e, index) =>{
+        this.setState({
+            currentPage: index
+        })
+    }
+
+    /**
+     * 渲染分页组件
+     * @returns {*}
+     */
+    renderPages = () => {
+        let pages = [];
+        for(let i=1;i<=5;i++){
+            pages.push(
+                <TouchableOpacity key={i} onPress={e=>this.toPressPage(e,i)}>
+                    <Text>{this.state.currentPage+i}</Text>
+                </TouchableOpacity>
+            )
+            console.log('pages', pages);
+        }
+        return pages;
+    }
+
     render() {
-        let me = this;
-        console.log('this.props', this.props);
-
-        // let data = response.ShiData[0];
-        // let title = data.Title.Content;
-        // let subTitle = '（' + data.Dynasty + '.' + data.Author + '）';
-        // let preface = data.Preface;
-        // let content = '';
-        // if(data.Clauses && data.Clauses.length>0){
-        //     data.Clauses.forEach((item,index)=>{
-        //         if(index%2 == 1){
-        //             content += item.Content + '\n';
-        //         }else{
-        //             content += item.Content;
-        //         }
-        //
-        //     });
-        // }
-        // me.setState({title: title, preface: preface,content: content,subTitle: subTitle});
-
-
-        const {id, title, subTitle, preface, content,} = me.state;
-        let inputTag = <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>;
-        let touchableTag = <TouchableOpacity onPress={this.showData.bind(this)}><View style={styles.btn}><Text style={styles.wordC}>搜索</Text></View></TouchableOpacity>
         return (
-            <View style={styles.container}>{inputTag}{touchableTag}
+            <View style={styles.container}>
+                <Search navigation={this.props.navigation}/>
+                {/*{*/}
+                    {/*this.renderResult()*/}
+                {/*}*/}
+                <TouchableOpacity onPress={this.toLastPage}>
+                    <Text>上一页</Text>
+                </TouchableOpacity>
                 {
-                    this.renderResult()
+                    this.renderPages()
                 }
+                <TouchableOpacity onPress={this.toNextPage}>
+                    <Text>下一页</Text>
+                </TouchableOpacity>
             </View>)
     }
 }
@@ -139,8 +197,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     allTitle: {
-        marginTop: 10,
-        textAlign: 'left'
+        marginTop: 5,
+        textAlign: 'left',
+        textDecorationLine: 'underline',
+        fontSize: 14
     },
     title: {
         fontSize: 18

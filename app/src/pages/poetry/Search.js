@@ -12,6 +12,9 @@ export default class Search extends Component {
     // 构造
     constructor() {
         super();
+        this.state={
+            showValue: ''
+        }
         this.data = data;
         this.onEventPress = this.onEventPress.bind(this);
     }
@@ -37,20 +40,27 @@ export default class Search extends Component {
      * 跳转到搜索页
      */
     showData=()=>{
-        let me = this;
-
-        service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, scope: this.state.initId, jsonType: true}).then((response) => {
-            console.log('response', response);
-            if (response.ShiData && response.ShiData.length > 0) {
-                const navigateAction = NavigationActions.navigate({
-                    routeName: 'Result',
-                    params: {
-                        result: response
-                    }
-                });
-                this.props.navigation.dispatch(navigateAction);
-            }
-        });
+        if(this.state.showValue){
+            const navigateAction = NavigationActions.navigate({
+                routeName: 'Result',
+                params: {
+                    searchValue: this.state.showValue
+                }
+            });
+            this.props.navigation.dispatch(navigateAction);
+            // service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, scope: this.state.initId, jsonType: true}).then((response) => {
+            //     console.log('response', response);
+            //     if (response.ShiData && response.ShiData.length > 0) {
+            //         const navigateAction = NavigationActions.navigate({
+            //             routeName: 'Result',
+            //             params: {
+            //                 result: response
+            //             }
+            //         });
+            //         this.props.navigation.dispatch(navigateAction);
+            //     }
+            // });
+        }
     }
 
     /**
@@ -66,7 +76,7 @@ export default class Search extends Component {
         return (
             <View style={styles.container}>
                 <View style={styles.search}>
-                    <TextInput placeholder='请输入想查询的关键字' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
+                    <TextInput placeholder='请输入想查询的关键字' value={this.state.showValue} editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
                     <TouchableOpacity onPress={this.showData.bind(this)}>
                         <View style={styles.btn}>
                             <Text style={styles.wordC}>搜索</Text>
