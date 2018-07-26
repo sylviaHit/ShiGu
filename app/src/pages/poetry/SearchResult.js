@@ -27,6 +27,7 @@ export default class SearchResult extends Component {
             content: '',
             showValue: '',
             currentPage: 0,
+            currentStartPage: 0,
             data: []
         }
         // 诗词查询输入框
@@ -130,17 +131,33 @@ export default class SearchResult extends Component {
      */
     toLastPage = () => {
         if(this.state.currentPage > 0){
+            let currentStartPage = this.state.currentStartPage;
+            let currentPage = this.state.currentPage;
+            if(currentStartPage === currentPage && currentStartPage > 0){
+                currentStartPage = currentStartPage - 1;
+            }
             this.setState({
-                currentPage: this.state.currentPage - 1
+                currentPage: currentPage - 1,
+                currentStartPage: currentStartPage
             })
         }
-
     }
 
     toNextPage = () => {
-        this.setState({
-            currentPage: this.state.currentPage + 1
-        })
+        console.log('currentPage', this.state.currentPage)
+        if(this.state.currentPage >= 0){
+            let currentStartPage = this.state.currentStartPage;
+            let currentPage = this.state.currentPage;
+            console.log(this.state);
+            if(currentStartPage+4 === currentPage){
+                currentStartPage = currentStartPage + 1;
+            }
+            console.log('currentPage', currentPage)
+            this.setState({
+                currentPage: currentPage + 1,
+                currentStartPage: currentStartPage
+            })
+        }
     }
 
     /**
@@ -159,9 +176,12 @@ export default class SearchResult extends Component {
     renderPages = () => {
         let pages = [];
         for(let i=1;i<=5;i++){
+            let style1 = styles.page;
+            let style = this.state.currentStartPage+i-1 === this.state.currentPage ? {borderColor: '#fae25d'} : {borderColor: '#ccc'}
+
             pages.push(
-                <TouchableOpacity key={i} onPress={e=>this.toPressPage(e,i)}>
-                    <Text>{this.state.currentPage+i}</Text>
+                <TouchableOpacity key={i} onPress={e=>this.toPressPage(e, this.state.currentStartPage+i-1)}>
+                    <Text style={[styles.page, style]}>{this.state.currentStartPage+i}</Text>
                 </TouchableOpacity>
             )
             console.log('pages', pages);
@@ -173,18 +193,20 @@ export default class SearchResult extends Component {
         return (
             <View style={styles.container}>
                 <Search navigation={this.props.navigation}/>
-                {/*{*/}
-                    {/*this.renderResult()*/}
-                {/*}*/}
-                <TouchableOpacity onPress={this.toLastPage}>
-                    <Text>上一页</Text>
-                </TouchableOpacity>
                 {
-                    this.renderPages()
+                    this.renderResult()
                 }
-                <TouchableOpacity onPress={this.toNextPage}>
-                    <Text>下一页</Text>
-                </TouchableOpacity>
+                <View style={styles.pagesContainer}>
+                    <TouchableOpacity onPress={this.toLastPage}>
+                        <Text style={styles.arrowPage}>上一页</Text>
+                    </TouchableOpacity>
+                    {
+                        this.renderPages()
+                    }
+                    <TouchableOpacity onPress={this.toNextPage}>
+                        <Text style={styles.arrowPage}>下一页</Text>
+                    </TouchableOpacity>
+                </View>
             </View>)
     }
 }
@@ -238,5 +260,26 @@ const styles = StyleSheet.create({
     wordC:{
         color:"white",
         fontSize:18,
+    },
+    pagesContainer: {
+        flexDirection: 'row'
+    },
+    arrowPage: {
+        width: 60,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        height: 30,
+        lineHeight: 30,
+        textAlign: 'center'
+    },
+    page: {
+        width: 32,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+        height: 30,
+        lineHeight: 30,
+        textAlign: 'center'
     }
 });
