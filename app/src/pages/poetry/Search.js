@@ -2,64 +2,96 @@
  * homePage
  */
 import React, { Component } from 'react';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, Button} from 'react-native';
+import {StyleSheet, Text, View, TextInput, TouchableOpacity, Button, Alert} from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import data from './data.json';
 import {service} from "../../utils/service";
 import RadioModal from 'react-native-radio-master';
+import {actionCreate} from "../../redux/reducer";
+import {connect} from "react-redux";
 
-export default class Search extends Component {
+class Search extends Component {
     // 构造
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state={
-            showValue: ''
+            searchValue: '',
+            initId: 'all'
         }
         this.data = data;
-        this.onEventPress = this.onEventPress.bind(this);
     }
 
-    onEventPress(data){
-        const navigateAction = NavigationActions.navigate({
-            routeName: 'PoemDetail',
-            params: {id: data.id },
-            showValue: '',
-            initId: 'All'
-        });
-        this.props.navigation.dispatch(navigateAction);
+    componentWillMount(){
     }
 
     /**
      * 搜索内容改变
      */
     onChangeText=(inputData)=>{
-        this.setState({showValue: inputData});
+        const { actionCreate, dispatch } = this.props;
+        dispatch(actionCreate('SET_POETRY_SEARCH_VALUE', inputData ));
+    }
+
+    fetchData = () => {
+        const { store:{poetry : { searchValue, item, data }} } = this.props.store;
+        let newData = Object.assign({}, data);
+        if(!(newData[searchValue] && newData[searchValue][0] && Array.isArray(newData[searchValue][0]))){
+            service.get('https://api.sou-yun.com/api/poem', {key: searchValue, scope: item, pageNo: 0 || 0, jsonType: true}).then((response) => {
+                //无数据
+                if(response === null){
+                    return (
+                        Alert.alert('',
+                            '无更多数据'
+                        )
+                    )
+                }
+                if (response.ShiData && response.ShiData.length > 0) {
+                    if(newData && newData[searchValue]){
+                        newData[searchValue][0] = response;
+                    }else if(newData && !newData[searchValue]){
+                        newData[searchValue] = [];
+                        newData[searchValue][0] = response;
+                    }
+                    const { actionCreate, dispatch } = this.props;
+                    dispatch(actionCreate('SET_POETRY_DATA', {
+                        data: newData,
+                        currentPage: 0,
+                        currentStartPage: 0
+                    } ));
+
+                    const navigateAction = NavigationActions.navigate({
+                        routeName: 'Result',
+                        params: {
+                            searchValue: searchValue
+                        }
+                    });
+                    this.props.navigation.dispatch(navigateAction);
+                }
+            });
+        }
     }
 
     /**
      * 跳转到搜索页
      */
     showData=()=>{
-        if(this.state.showValue){
-            const navigateAction = NavigationActions.navigate({
-                routeName: 'Result',
-                params: {
-                    searchValue: this.state.showValue
-                }
-            });
-            this.props.navigation.dispatch(navigateAction);
-            // service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, scope: this.state.initId, jsonType: true}).then((response) => {
-            //     console.log('response', response);
-            //     if (response.ShiData && response.ShiData.length > 0) {
-            //         const navigateAction = NavigationActions.navigate({
-            //             routeName: 'Result',
-            //             params: {
-            //                 result: response
-            //             }
-            //         });
-            //         this.props.navigation.dispatch(navigateAction);
-            //     }
-            // });
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
+        console.log(searchValue, item);
+        if(searchValue){
+            if(!this.props.onGetData){
+                console.log('跳转');
+                const navigateAction = NavigationActions.navigate({
+                    routeName: 'Result',
+                    params: {
+                        searchValue: this.state.searchValue
+                    }
+                });
+                this.props.navigation.dispatch(navigateAction);
+            }
+            if(this.props.onGetData){
+                this.props.onGetData(undefined, undefined);
+            }
+            //
         }
     }
 
@@ -68,16 +100,18 @@ export default class Search extends Component {
      * @returns {*}
      */
     onSelectedItemChange = (id) => {
-        console.log('id', id);
-        this.setState({initId: String(id)})
+        const { actionCreate, dispatch } = this.props;
+        let searchItem = String(id);
+        dispatch(actionCreate('SET_POETRY_SEARCH_ITEM', searchItem ));
     }
 
     render() {
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
         return (
             <View style={styles.container}>
                 <View style={styles.search}>
-                    <TextInput placeholder='请输入想查询的关键字' value={this.state.showValue} editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
-                    <TouchableOpacity onPress={this.showData.bind(this)}>
+                    <TextInput placeholder='请输入想查询的关键字' value={searchValue} editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
+                    <TouchableOpacity onPress={this.fetchData.bind(this)}>
                         <View style={styles.btn}>
                             <Text style={styles.wordC}>搜索</Text>
                         </View>
@@ -85,7 +119,7 @@ export default class Search extends Component {
                 </View>
                 <View style={{alignItems:'center'}}>
                     <RadioModal
-                        selectedValue='all'
+                        selectedValue={item}
                         onValueChange={this.onSelectedItemChange}
                         style={{
                             flexDirection:'row',
@@ -109,10 +143,27 @@ export default class Search extends Component {
   }
 }
 
+function mapStateToProps(state) {
+    return {
+        store: state // gives our component access to state through props.toDoApp
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch: dispatch,
+        actionCreate: actionCreate
+    } // here we'll soon be mapping actions to props
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Search);
+
 const styles = StyleSheet.create({
     container: {
         paddingTop: 20,
-        paddingBottom: 20,
+        paddingBottom: 10,
     },
     search: {
         alignItems: 'center',

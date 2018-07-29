@@ -8,17 +8,30 @@ import {NavigationActions} from 'react-navigation';
 import data from './data.json';
 import {service} from "../../utils/service";
 import Search from './Search';
+import {actionCreate} from "../../redux/reducer";
+import {connect} from "react-redux";
 
-export default class Poetry extends Component {
+class Poetry extends Component {
     static navigationOptions = {
         title: '',
         header: null
+
     };
     // 构造
     constructor() {
         super();
         this.data = data;
+        this.state={
+            searchValue: ''
+        }
         this.onEventPress = this.onEventPress.bind(this);
+    }
+
+    /**
+     * 搜索内容改变
+     */
+    onChangeText=(inputData)=>{
+        this.setState({searchValue: inputData});
     }
 
     onEventPress(data) {
@@ -29,8 +42,6 @@ export default class Poetry extends Component {
         let me = this;
         service.get('https://api.sou-yun.com/api/poem', {key: id, jsonType: true}).then((response) => {
             if (response.ShiData && response.ShiData.length > 0) {
-                console.log(response, '1111111');
-
                 const navigateAction = NavigationActions.navigate({
                     routeName: 'PoemDetail',
                     params: {
@@ -44,10 +55,13 @@ export default class Poetry extends Component {
     };
 
     render() {
-        //'rgb(45,156,219)'
         return (
             <View style={styles.container}>
-                <Search navigation={this.props.navigation}/>
+                <Search
+                    navigation={this.props.navigation}
+                    onChage={this.onChangeText}
+                    value={this.state.searchValue || ''}
+                />
                 <Timeline
                     style={styles.list}
                     data={this.data}
@@ -76,16 +90,33 @@ export default class Poetry extends Component {
     }
 }
 
+function mapStateToProps(state) {
+    return {
+        store: state // gives our component access to state through props.toDoApp
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch: dispatch,
+        actionCreate: actionCreate
+    } // here we'll soon be mapping actions to props
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Poetry);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingLeft: 20,
-        // paddingRight: 20,
+        // paddingLeft: 20,
         paddingBottom: 20,
         backgroundColor: 'white'
     },
     list: {
         flex: 1,
-        marginTop: 10
+        // marginTop: 10,
+        paddingLeft: 20,
     },
 });

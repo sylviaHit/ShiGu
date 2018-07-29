@@ -14,8 +14,10 @@ import {NavigationActions} from "react-navigation";
 import Dimensions from 'Dimensions';
 import Search from './Search';
 import Carousel from 'react-native-snap-carousel';
+import {actionCreate} from "../../redux/reducer";
+import {connect} from "react-redux";
 
-export default class PoemDetail extends Component {
+class PoemDetail extends Component {
     static navigationOptions = {
         title: '',
         header: null
@@ -28,7 +30,7 @@ export default class PoemDetail extends Component {
             subTitle: '',
             preface: '',
             content: '',
-            showValue: ''
+            searchValue: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.searchValue || ''
         }
         // 诗词查询输入框
         this.onChangeText = this.onChangeText.bind(this);
@@ -39,8 +41,11 @@ export default class PoemDetail extends Component {
     componentWillMount() {
     }
 
+    /**
+     * 搜索内容改变
+     */
     onChangeText=(inputData)=>{
-        this.setState({showValue: inputData});
+        this.setState({searchValue: inputData});
     }
 
     /**
@@ -48,9 +53,7 @@ export default class PoemDetail extends Component {
      */
     showData=()=>{
         let me = this;
-        console.log('me', me);
-        service.get('https://api.sou-yun.com/api/poem', {key: this.state.showValue, jsonType: true}).then((response) => {
-            console.log('response', response);
+        service.get('https://api.sou-yun.com/api/poem', {key: this.state.searchValue, jsonType: true}).then((response) => {
             if (response.ShiData && response.ShiData.length > 0) {
                 const navigateAction = NavigationActions.navigate({
                     routeName: 'Result',
@@ -63,13 +66,6 @@ export default class PoemDetail extends Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
-        // this.getPoemDetail(this.state.id);
-        // this.setState({
-        //     id: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.id || ''
-        // })
-    }
-
     /**
      * 轮播图渲染
      */
@@ -78,9 +74,7 @@ export default class PoemDetail extends Component {
         const { navigation } = this.props;
         let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
-            console.log('2222222');
             const data = navigation.state.params.data;
-            console.log('data', data);
             if(data){
                 id = data.Id || '';
                 title = data.Title && data.Title.Content || '';
@@ -114,13 +108,18 @@ export default class PoemDetail extends Component {
         );
     }
 
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            searchValue: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.searchValue || ''
+        })
+    }
+
     render() {
         let me = this;
         const { navigation } = this.props;
         let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
         let data;
         if(navigation && navigation.state && navigation.state.params && navigation.state.params.data){
-            console.log('11111');
             const data = navigation.state.params.data;
             if(data){
                 id = data.Id || '';
@@ -141,12 +140,14 @@ export default class PoemDetail extends Component {
                 }
             }
         }
-        console.log('data', data);
 
         return (
             id ?
                 <View style={styles.wrap}>
-                    <Search navigation={this.props.navigation}/>
+                    <Search
+                        navigation={this.props.navigation}
+                        onChage={this.onChangeText}
+                        value={this.state.searchValue || ''}/>
                     <ScrollView style={styles.bodyContainer}>
                         <View style={styles.container}>
                             <Text style={styles.allTitle}>
@@ -165,6 +166,23 @@ export default class PoemDetail extends Component {
                 </View>)
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        store: state // gives our component access to state through props.toDoApp
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        dispatch: dispatch,
+        actionCreate: actionCreate
+    } // here we'll soon be mapping actions to props
+}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(PoemDetail);
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight =  Dimensions.get('window').height;

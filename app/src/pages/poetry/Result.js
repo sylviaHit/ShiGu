@@ -16,7 +16,7 @@ import Search from './Search';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
 
-class SearchResult extends Component {
+class Result extends Component {
     static navigationOptions = {
         title: '',
         header: null
@@ -36,22 +36,43 @@ class SearchResult extends Component {
     }
 
     componentWillMount(){
-     }
+        console.log('111111111111')
+        const { navigation } = this.props;
+        let results = [];
+
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
+        if(searchValue){
+            service.get('https://api.sou-yun.com/api/poem', {key: searchValue, scope: item, pageNo: this.state.currentPage, jsonType: true}).then((response) => {
+                let newData = Object.assign({}, this.state.data);
+
+                if(newData && newData[searchValue]){
+                    newData[searchValue][this.state.currentPage] = response;
+                }else if(newData && !newData[searchValue]){
+                    newData[searchValue] = [];
+                    newData[searchValue][this.state.currentPage] = response;
+                }
+
+                if (response.ShiData && response.ShiData.length > 0) {
+                    this.setState({
+                        data: newData
+                    })
+                }
+            });
+        }
+
+    }
 
     getData = (pageNo, currentStartPage) => {
-        console.log('pageNo', pageNo, 'currentStartPage', currentStartPage);
-        const { store:{poetry : { searchValue, item, data }} } = this.props.store;
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
         pageNo = (pageNo !== undefined) ? pageNo : this.state.currentPage;
         currentStartPage = (currentStartPage !== undefined) ? currentStartPage : this.state.currentStartPage;
 
-        let newData = Object.assign({}, data);
+        let newData = Object.assign({}, this.state.data);
         if(newData[searchValue] && newData[searchValue][pageNo] && Array.isArray(newData[searchValue][pageNo])){
-            const { actionCreate, dispatch } = this.props;
-            dispatch(actionCreate('SET_POETRY_DATA', {
-                data: newData,
+            this.setState({
                 currentPage: pageNo,
                 currentStartPage: currentStartPage
-            } ));
+            })
         }else{
             service.get('https://api.sou-yun.com/api/poem', {key: searchValue, scope: item, pageNo: pageNo || 0, jsonType: true}).then((response) => {
 
@@ -70,12 +91,11 @@ class SearchResult extends Component {
                         newData[searchValue] = [];
                         newData[searchValue][pageNo] = response;
                     }
-                    const { actionCreate, dispatch } = this.props;
-                    dispatch(actionCreate('SET_POETRY_DATA', {
+                    this.setState({
                         data: newData,
                         currentPage: pageNo,
                         currentStartPage: currentStartPage
-                    } ));
+                    })
                 }
             });
         }
@@ -104,13 +124,10 @@ class SearchResult extends Component {
 
     renderResult = () =>{
         let results = [];
-        const { store:{poetry : { searchValue, item, data, currentPage }} } = this.props.store;
-        console.log('data', data, data[searchValue], data[searchValue] && data[searchValue][currentPage]);
-
-        if(data && data[searchValue] && data[searchValue][currentPage]){
-            const { ShiData } = data[searchValue][currentPage];
-            console.log('ShiData', ShiData);
-
+        const { data } = this.state;
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
+        if(data && data[searchValue] && data[searchValue][this.state.currentPage]){
+            const { ShiData } = data[searchValue][this.state.currentPage];
             if(ShiData && Array.isArray(ShiData)){
                 ShiData.forEach((item,index)=>{
                     results.push(
@@ -130,9 +147,9 @@ class SearchResult extends Component {
      * 跳转到上一页
      */
     toLastPage = () => {
-        let currentPage = this.props.store.store.poetry.currentPage;
-        let currentStartPage = this.props.store.store.poetry.currentStartPage;
-        if(currentPage > 0){
+        if(this.state.currentPage > 0){
+            let currentStartPage = this.state.currentStartPage;
+            let currentPage = this.state.currentPage;
             if(currentStartPage === currentPage && currentStartPage > 0){
                 currentStartPage = currentStartPage - 1;
             }
@@ -141,9 +158,9 @@ class SearchResult extends Component {
     }
 
     toNextPage = () => {
-        let currentPage = this.props.store.store.poetry.currentPage;
-        let currentStartPage = this.props.store.store.poetry.currentStartPage;
-        if(currentPage >= 0){
+        if(this.state.currentPage >= 0){
+            let currentStartPage = this.state.currentStartPage;
+            let currentPage = this.state.currentPage;
             if(currentStartPage+4 === currentPage){
                 currentStartPage = currentStartPage + 1;
             }
@@ -155,16 +172,15 @@ class SearchResult extends Component {
      * 跳转到当前点击页
      */
     toPressPage = (e, index) =>{
-        const { store:{poetry : { currentPage, currentStartPage }} } = this.props.store;
-        this.getData(index, currentStartPage);
+        this.getData(index, this.state.currentStartPage);
     }
 
     renderPagesBottom = () => {
-        console.log(this.props.navigation.state);
         let pages = [];
-        const { store:{poetry : { searchValue, item, data, currentPage }} } = this.props.store;
-        if(data && data[searchValue] && data[searchValue][currentPage]){
-            const { ShiData } = data[searchValue][currentPage];
+        const { data } = this.state;
+        const { store:{poetry : { searchValue, item }} } = this.props.store;
+        if(data && data[searchValue] && data[searchValue][this.state.currentPage]){
+            const { ShiData } = data[searchValue][this.state.currentPage];
             if(ShiData && Array.isArray(ShiData) && ShiData.length >0){
                 pages = (
                     <View style={styles.pagesContainer}>
@@ -189,15 +205,14 @@ class SearchResult extends Component {
      * @returns {*}
      */
     renderPages = () => {
-        const { store:{poetry : { searchValue, item, data, currentPage, currentStartPage }} } = this.props.store;
         let pages = [];
         for(let i=1;i<=5;i++){
             let style1 = styles.page;
-            let style = currentStartPage+i-1 === currentPage ? {borderColor: '#fae25d'} : {borderColor: '#ccc'}
-            console.log(currentPage, currentStartPage);
+            let style = this.state.currentStartPage+i-1 === this.state.currentPage ? {borderColor: '#fae25d'} : {borderColor: '#ccc'}
+
             pages.push(
-                <TouchableOpacity key={i} onPress={e=>this.toPressPage(e, currentStartPage+i-1)}>
-                    <Text style={[styles.page, style]}>{currentStartPage+i}</Text>
+                <TouchableOpacity key={i} onPress={e=>this.toPressPage(e, this.state.currentStartPage+i-1)}>
+                    <Text style={[styles.page, style]}>{this.state.currentStartPage+i}</Text>
                 </TouchableOpacity>
             )
         }
@@ -206,24 +221,17 @@ class SearchResult extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <Search
-                    navigation={this.props.navigation}
-                    onChage={this.onChangeText}
-                    onGetData={this.getData}
-                    value={this.state.searchValue || ''}
-                />
-                <ScrollView style={styles.bodyContainer}>
-                    <View style={{ minHeight: 500 }}>
-                        {
-                            this.renderResult()
-                        }
-                    </View>
+            <ScrollView style={styles.bodyContainer}>
+                <View style={{ minHeight: 500 }}>
                     {
-                        this.renderPagesBottom()
+                        this.renderResult()
                     }
-                </ScrollView>
-            </View>)
+                </View>
+                {
+                    this.renderPagesBottom()
+                }
+            </ScrollView>
+        )
     }
 }
 
@@ -242,18 +250,13 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(SearchResult);
+)(Result);
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // paddingLeft: 20,
-        // paddingRight: 20,
-        paddingBottom: 20,
+        padding: 20,
         backgroundColor: 'white'
-    },
-    bodyContainer:{
-        paddingLeft: 20,
     },
     allTitle: {
         marginTop: 5,

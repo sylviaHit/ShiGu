@@ -36,7 +36,10 @@ class CultureMap extends Component {
     //         />
     //     ),
     // };
-
+    static navigationOptions = {
+        title: '',
+        header: null
+    };
 
     constructor(props){
         super(props);

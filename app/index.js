@@ -15,6 +15,8 @@ import { Provider } from 'react-redux';
 import configureStore from './src/redux/createStore';
 import PoemDetail from "./src/pages/poetry/PoemDetail";
 import SearchResult from "./src/pages/poetry/SearchResult";
+import PoetryHome from './src/pages/poetry/PoetryHome';
+import GameHome from './src/pages/game/GameHome';
 
 import Game from './src/pages/game/Game';
 
@@ -27,12 +29,12 @@ const RootStack = createStackNavigator(
         PoemDetail: {screen: PoemDetail},
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
-        Person: { screen: Person },
+        Person: { screen: HomePage },
         Result: { screen: SearchResult },
-        Game: { screen: Game }
+        Game: { screen: GameHome }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Game',
         mode: 'modal',
         // headerMode: 'none',
     }
