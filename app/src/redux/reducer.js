@@ -6,7 +6,17 @@ export function actionCreate(type, content) {
 }
 const initialState = {
     game: {
-        mention: false
+        mention: false,
+        blockade: 1,
+        keyWords:['春', '江', '花', '月', '夜',
+            '夏', '日', '湖', '水', '岸',
+            '秋', '山', '风', '雨', '天',
+            '冬', '朝', '海', '云', '关',
+            '南', '窗', '柳', '色', '暖',
+            '北', '庭', '鸟', '声', '寒',
+            '西', '楼', '人', '心', '愁',
+            '东', '家', '酒', '梦', '残'],
+        data: {}
     },
     poetry: {
         searchValue: '',
@@ -49,6 +59,10 @@ export default function reducer(state = initialState, action) {
         case 'SET_POETRY_CURRENT_START_PAGE':
             console.log(action.content);
             newState.poetry.data.currentStartPage = action.content
+            return newState;
+        case 'SET_GAME_DATA':
+            console.log(action.content);
+            newState.game.data = action.content
             return newState;
         default:
             return newState;

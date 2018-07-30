@@ -38,13 +38,13 @@ class GameHome extends Component {
 
     getData = () => {
         service.get('https://api.sou-yun.com/api/poem', {key: this.state.keyWords, scope: 3, pageNo: this.pageNo, jsonType: true}).then((response) => {
-            console.log('response', response);
-            console.log(this.state.text);
+            // console.log('response', response);
+            // console.log(this.state.text);
             if (response.ShiData && response.ShiData.length > 0) {
                 this.dataAll.push(response.ShiData);
                 if(response.ShiData.length === 20){
                     this.pageNo += 1;
-                    this.getData();
+                    // this.getData();
                 }
             }
         });
@@ -53,14 +53,72 @@ class GameHome extends Component {
     componentWillMount() {
         this.dataAll = [];
         this.getData();
-        console.log('this.dataAll', this.dataAll);
+        // console.log('this.dataAll', this.dataAll);
     }
 
     componentWillReceiveProps(nextProps) {
     }
 
+    /**
+     * 点击关卡
+     */
+    pressBlockade = (index) =>{
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'GameDetail',
+            params: {
+                index: index
+            }
+        });
+        this.props.navigation.dispatch(navigateAction);
+    }
+
+    /**
+     * 渲染关卡
+     * @returns {*}
+     */
+    renderBlockade = () => {
+        const { store: { game: { blockade, keyWords } } } = this.props.store;
+        let blockades = [];
+        for(let i=0;i<40;i++){
+            //关卡样式位置
+            let left = 0;
+            if(i % 4 === 0 ){
+                left = 28;
+            }else if((i-1)%2 === 0){
+                left = 126;
+            }else if((i-2)%4 === 0){
+                left = 224;
+            }
+
+            let keyWord = keyWords[i];//关键字
+
+            if(i+1 <= blockade){//已解锁关卡
+                blockades.push(
+                    <View style={styles.blockadeContainer} key={i} >
+                        <TouchableOpacity style={[styles.keyWordsContainer, {left: left, backgroundColor: '#eeede7', borderColor: '#fff'}]} onPress={e=>this.pressBlockade(i, e)}>
+                            <Text style={[styles.keyWords, {color: '#000'}]}>{keyWord}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )
+            }else{//未解锁关卡
+                blockades.push(
+                    <View style={styles.blockadeContainer} key={i} >
+                        <View style={[styles.keyWordsContainer, {left: left}]}>
+                            <Text style={[styles.keyWords, {color: '#ccc'}]}>?</Text>
+                        </View>
+                    </View>
+                )
+            }
+
+
+
+
+        }
+        return blockades;
+    }
+
     render() {
-        console.log('this.props-------------', this.props);
+        // console.log('this.props-------------', this.props);
         const { store } = this.props.store || store;
         return (
             <ImageBackground source={require('../../images/poetry-bg-2.jpg')} style={{width: screenWidth,height: screenHeight}}>
@@ -69,71 +127,7 @@ class GameHome extends Component {
                     contentContainerStyle={{ alignItems: 'center' }}
 
                 >
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 28}]}>
-                            <Text style={styles.keyWords}>1</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>2</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 224}]}>
-                            <Text style={styles.keyWords}>3</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>4</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 28}]}>
-                            <Text style={styles.keyWords}>5</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>6</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 224}]}>
-                            <Text style={styles.keyWords}>7</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>8</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 28}]}>
-                            <Text style={styles.keyWords}>9</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>10</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 224}]}>
-                            <Text style={styles.keyWords}>11</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 126}]}>
-                            <Text style={styles.keyWords}>12</Text>
-                        </View>
-                    </View>
-                    <View style={styles.blockadeContainer}>
-                        <View style={[styles.keyWordsContainer, {left: 28}]}>
-                            <Text style={styles.keyWords}>13</Text>
-                        </View>
-                    </View>
+                    {this.renderBlockade()}
                 </ScrollView>
             </ImageBackground>
         )

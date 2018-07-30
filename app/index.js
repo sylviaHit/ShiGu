@@ -17,8 +17,7 @@ import PoemDetail from "./src/pages/poetry/PoemDetail";
 import SearchResult from "./src/pages/poetry/SearchResult";
 import PoetryHome from './src/pages/poetry/PoetryHome';
 import GameHome from './src/pages/game/GameHome';
-
-import Game from './src/pages/game/Game';
+import GameDetail from './src/pages/game/GameDetail';
 
 const store = configureStore();
 
@@ -31,7 +30,8 @@ const RootStack = createStackNavigator(
         PointDetail: { screen: PointDetail },
         Person: { screen: HomePage },
         Result: { screen: SearchResult },
-        Game: { screen: GameHome }
+        Game: { screen: GameHome },
+        GameDetail: { screen: GameDetail }
     },
     {
         initialRouteName: 'Game',

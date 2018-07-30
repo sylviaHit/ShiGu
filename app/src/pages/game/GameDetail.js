@@ -7,7 +7,8 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
-    Button
+    Button,
+    Alert
 } from 'react-native';
 import PopupDialog from 'react-native-popup-dialog';
 import {service} from "../../utils/service";
@@ -17,18 +18,20 @@ import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
 
-class Game extends Component {
+class GameDetail extends Component {
     static navigationOptions = {
         title: '',
         header: null
     };
     constructor(props) {
         super(props);
+        const { store: { game: { data } } } = this.props.store;
         this.state = {
             closeMention: false,
             keyWords: '人',
             text: '',
-            data: []
+            data: [],
+            sentences: []
         };
         this.pageNo = 0;
         this.dataAll = [];
@@ -66,25 +69,93 @@ class Game extends Component {
         this.setState({text: inputData});
     }
 
+    /**
+     * 对战行令
+     */
+    fetchData = () => {
+        const { navigation : {state: {params : { index }}}} = this.props;
+        const { store: { game: { keyWords, data } } } = this.props.store;
+        let keyWord = keyWords[index];
+        service.get('https://api.sou-yun.com/api/poem', {key: keyWord, scope: 3, jsonType: true}).then((response) => {
+            if (response && response.ShiData) {
+                console.log('response', response);
+                //
+                // let localNewData = this.state.data.concat();
+                // localNewData.push({
+                //     sentence: this.state.text,
+                //     poem: response.ShiData
+                // });
+                // let localNewSentences = this.state.sentences.concat();
+                // localNewSentences.push(this.state.text);
+                // this.setState({
+                //     data: localNewData,
+                //     sentences: localNewSentences
+                // });
+                //
+                //
+                // console.log('response', response);
+                // let newData = Object.assign({}, data);
+                // if(!newData[keyWord]){
+                //     newData[keyWord] = [];
+                // }
+                // newData[keyWord].push(this.state.text);
+                //
+                // const { actionCreate, dispatch } = this.props;
+                // dispatch(actionCreate('SET_GAME_DATA', newData));
+                // console.log('22222222222222222222222222')
+
+            }
+        });
+    }
+
 
     /**
      * 跳转到搜索页
      */
     submit=()=>{
-        service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
-            console.log('response', response);
-            let newData = this.state.data.concat();
-            if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(this.state.keyWords) !== -1) {
-                console.log('行令成功', [...this.state.data]);
-                newData.push({
-                    sentence: this.state.text,
-                    poem: response.ShiData
-                });
-                this.setState({
-                    data: newData
-                })
-            }
-        });
+        const { navigation : {state: {params : { index }}}} = this.props;
+        const { store: { game: { keyWords, data } } } = this.props.store;
+        let keyWord = keyWords[index];
+        // console.log(this.state.sentences.indexOf(this.state.text) === -1, this.state.sentences.indexOf(this.state.text), this.state.sentences)
+        if(this.state.sentences.indexOf(this.state.text) === -1){
+            service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
+
+
+                if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
+                    console.log('行令成功', [...this.state.data]);
+
+                    let localNewData = this.state.data.concat();
+                    localNewData.push({
+                        sentence: this.state.text,
+                        poem: response.ShiData
+                    });
+                    let localNewSentences = this.state.sentences.concat();
+                    localNewSentences.push(this.state.text);
+                    this.setState({
+                        data: localNewData,
+                        sentences: localNewSentences
+                    });
+
+
+                    // console.log('response', response);
+                    let newData = Object.assign({}, data);
+                    if(!newData[keyWord]){
+                        newData[keyWord] = [];
+                    }
+                    newData[keyWord].push(this.state.text);
+
+                    const { actionCreate, dispatch } = this.props;
+                    dispatch(actionCreate('SET_GAME_DATA', newData));
+                }
+            });
+        }else{
+            return (
+                Alert.alert('',
+                    '此诗句已存在'
+                )
+            )
+        }
+
     }
 
     /**
@@ -103,7 +174,7 @@ class Game extends Component {
         let titles = '';
         if(poem && Array.isArray(poem) && poem[0]){
             let item = poem[0];
-            console.log('item.Title.Content', item.Title.Content.split(''));
+            // console.log('item.Title.Content', item.Title.Content.split(''));
             if(item.Title && item.Title.Content){
                 titles = `《${item.Title.Content.split(' ')[0]}》`;
             }
@@ -117,6 +188,7 @@ class Game extends Component {
      */
     renderSentence = () => {
         let sentence = [];
+        // console.log(this.state);
         if(this.state.data && Array.isArray(this.state.data)){
             this.state.data.forEach((item, index) => {
                 sentence.push(
@@ -131,8 +203,42 @@ class Game extends Component {
                     </View>
                 )
             })
+            console.log('sentence', sentence);
         }
         return sentence;
+    }
+
+    /**
+     * 判断是否通关
+     */
+    successJudge = () => {
+        const data = this.state.data;
+
+        const { navigation : {state: {params : { index }}}} = this.props;
+        if(data.length >= 2 && index < 35){
+
+            return (
+                Alert.alert('',
+                    '恭喜通关，即将进入下一关！',
+                    [
+                        {text: 'OK', onPress: () => {
+                                this.setState({
+                                    data: [],
+                                    sentence: [],
+                                    text: ''
+                                })
+                                const navigateAction = NavigationActions.navigate({
+                                    routeName: 'GameDetail',
+                                    params: {
+                                        index: index+1
+                                    }
+                                });
+                                this.props.navigation.dispatch(navigateAction);
+                            }},
+                    ]
+                )
+            );
+        }
     }
 
     /**
@@ -150,20 +256,24 @@ class Game extends Component {
     }
 
     render() {
-        console.log('this.props-------------', this.props);
+        // console.log('this.props-------------', this.props);
         const { store } = this.props.store || store;
         // if(store && store.game && !store.game.mention){
         //     // alert('游戏规则：sfdsfas');
         //     this.popupDialog.show();
-        // }
+        // }sss
         // if()
+        const { navigation : {state: {params : { index }}}} = this.props;
+        const { store: { game: { keyWords } } } = this.props.store;
+        let keyWord = keyWords[index];
+        console.log('index', index, keyWord);
         return (
                 <View style={styles.wrap}>
                     <View style={styles.keyWordsContainer}>
-                        <Text style={styles.keyWords}>人</Text>
+                        <Text style={styles.keyWords}>{keyWord}</Text>
                     </View>
                     <View style={styles.input}>
-                        <TextInput placeholder='请输入包含“人”字的诗句' editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
+                        <TextInput placeholder={`请输入包含"${keyWord}"字的诗句`} value={this.state.text} editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
                         <TouchableOpacity onPress={this.submit}>
                             <View style={styles.btn}>
                                 <Text style={styles.submit}>提交</Text>
@@ -173,6 +283,7 @@ class Game extends Component {
                     <ScrollView style={styles.bodyContainer}>
                         {this.renderSentence()}
                     </ScrollView>
+                    {this.successJudge()}
                     {/*<View style={{width: screenWidth, height: screenHeight, position: 'absolute'}}>*/}
                         {/*<PopupDialog*/}
                             {/*width={0.8}*/}
@@ -215,7 +326,7 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Game);
+)(GameDetail);
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight =  Dimensions.get('window').height;
