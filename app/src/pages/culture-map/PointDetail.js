@@ -19,6 +19,10 @@ import {NavigationActions} from "react-navigation";
 
 type Props = {};
 class PointDetail extends Component<Props> {
+    static navigationOptions = {
+        title: '',
+        header: null
+    };
 
     constructor(props){
         super(props);
@@ -63,7 +67,7 @@ class PointDetail extends Component<Props> {
         const { store } = this.props.store;
         const { culture } = store;
         let relations = relation.split(';');
-        console.log('point', point);
+        // console.log('point', point);
         this.names = [];
         this.designers = [];
         let dataMap = {};

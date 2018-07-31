@@ -7,7 +7,7 @@ export function actionCreate(type, content) {
 const initialState = {
     game: {
         mention: false,
-        blockade: 1,
+        blockade: 0,
         keyWords:['春', '江', '花', '月', '夜',
             '夏', '日', '湖', '水', '岸',
             '秋', '山', '风', '雨', '天',
@@ -42,27 +42,26 @@ export default function reducer(state = initialState, action) {
             newState.poetry.item = action.content
             return newState;
         case 'SET_POETRY_DATA':
-            console.log(action.content);
             newState.poetry.data = action.content.data;
             newState.poetry.currentPage = action.content.currentPage;
             newState.poetry.currentStartPage = action.content.currentStartPage;
             return newState;
         case 'SET_POETRY_PAGE':
-            console.log(action.content);
             newState.poetry.data.currentPage = action.content.currentPage;
             newState.poetry.data.currentStartPage = action.content.currentStartPage;
             return newState;
         case 'SET_POETRY_CURRENT_PAGE':
-            console.log(action.content);
             newState.poetry.data.currentPage = action.content
             return newState;
         case 'SET_POETRY_CURRENT_START_PAGE':
-            console.log(action.content);
             newState.poetry.data.currentStartPage = action.content
             return newState;
         case 'SET_GAME_DATA':
-            console.log(action.content);
             newState.game.data = action.content
+            return newState;
+            //进入下一关
+        case 'SET_GAME_BLOCKADE':
+            newState.game.blockade = action.content
             return newState;
         default:
             return newState;

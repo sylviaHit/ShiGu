@@ -20,6 +20,10 @@ import {NavigationActions} from "react-navigation";
 
 type Props = {};
 class Person extends Component<Props> {
+    static navigationOptions = {
+        title: '',
+        header: null
+    };
     constructor(props){
         super(props);
         this.state = {
@@ -205,9 +209,9 @@ class Person extends Component<Props> {
                 });
             })
         }else{
-            console.log('creatorOf', creatorOf);
+            // console.log('creatorOf', creatorOf);
         }
-        console.log('this.works', works);
+        // console.log('this.works', works);
 
     }
 
@@ -235,13 +239,13 @@ class Person extends Component<Props> {
     render() {
         const { name, point } = this.state;
         // console.log('this.props', this.props);
-        console.log('this.state', this.state);
+        // console.log('this.state', this.state);
 
         const { store } = this.props.store;
         const { culture } = store;
         // console.log('culture', culture, point);
         return (
-            <ScrollView>
+            <ScrollView style={{padding: 20}}>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {name}

@@ -28,13 +28,13 @@ const RootStack = createStackNavigator(
         PoemDetail: {screen: PoemDetail},
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
-        Person: { screen: HomePage },
+        Person: { screen: Person },
         Result: { screen: SearchResult },
         Game: { screen: GameHome },
         GameDetail: { screen: GameDetail }
     },
     {
-        initialRouteName: 'Game',
+        initialRouteName: 'Home',
         mode: 'modal',
         // headerMode: 'none',
     }

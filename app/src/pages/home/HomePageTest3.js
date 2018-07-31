@@ -60,11 +60,12 @@ class HomePageTest3 extends Component{
                         </TouchableOpacity>
                     </View>
                     <View style={[styles.block, {left: 80, top:85, backgroundColor: '#e2e2e2'}]}>
-                        <TouchableOpacity
-                            style={styles.blockTouch}
-                            onPress={() => {this.props.navigation.navigate(pages[1])}}>
-                            <Text style={styles.title}>人文</Text>
-                        </TouchableOpacity>
+                        {/*<TouchableOpacity*/}
+                            {/*style={styles.blockTouch}*/}
+                            {/*onPress={() => {this.props.navigation.navigate(pages[1])}}>*/}
+                            {/*<Text style={styles.title}>人文</Text>*/}
+                        {/*</TouchableOpacity>*/}
+                        <ImageBackground source={require('../../images/gamebg.jpg')} style={{width: 78,height: 78}}/>
                     </View>
                     <View style={[styles.block, {left: 145, top:150}]}>
                         <ImageBackground source={require('../../images/book4.jpg')} style={{width: 78,height: 78}}/>
@@ -73,7 +74,7 @@ class HomePageTest3 extends Component{
                         <TouchableOpacity
                             style={styles.blockTouch}
                             onPress={() => {this.props.navigation.navigate(pages[2])}}>
-                            <Text style={[styles.title, {fontSize: 26, position: 'absolute', top: 12, left: -2}]}>诗词</Text>
+                            <Text style={[styles.title, {fontSize: 26, position: 'absolute', top: 12, left: -2}]}>飞花</Text>
                             <Text style={[styles.title, {fontSize: 26, position: 'absolute', top: 32, left: 6}]}>大闯关</Text>
                         </TouchableOpacity>
                     </View>
