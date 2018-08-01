@@ -71,18 +71,22 @@ class GameDetail extends Component {
      * 行令
      */
     submit=()=>{
-        const { navigation : {state: {params : { index }}}} = this.props;
-        const { store: { game: { keyWords, data } } } = this.props.store;
-        let keyWord = keyWords[index];
+        const { store: { game: { keyWords, blockade } } } = this.props.store;
+        let keyWord = keyWords[blockade];
         if(this.state.sentences.indexOf(this.state.text) === -1){
             service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
+                console.log(response, this.state.text.indexOf(keyWord) !== -1);
                 if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
-
+                    console.log(response, '111111111');
                     let localNewData = this.state.data.concat();
 
-                    if(localNewData.length < this.successLength){
+                    if(localNewData.length+1 < this.successLength){
                         Alert.alert('',
                             '行令成功！'
+                        )
+                    }else if(localNewData.length+1 === this.successLength){
+                        Alert.alert('',
+                            '恭喜通关，即将进入下一关！',
                         )
                     }
 
@@ -97,14 +101,14 @@ class GameDetail extends Component {
                         sentences: localNewSentences
                     });
 
-                    let newData = Object.assign({}, data);
-                    if(!newData[keyWord]){
-                        newData[keyWord] = [];
-                    }
-                    newData[keyWord].push(this.state.text);
-
-                    const { actionCreate, dispatch } = this.props;
-                    dispatch(actionCreate('SET_GAME_DATA', newData));
+                    // let newData = Object.assign({}, data);
+                    // if(!newData[keyWord]){
+                    //     newData[keyWord] = [];
+                    // }
+                    // newData[keyWord].push(this.state.text);
+                    //
+                    // const { actionCreate, dispatch } = this.props;
+                    // dispatch(actionCreate('SET_GAME_DATA', newData));
 
 
                 }
@@ -170,37 +174,29 @@ class GameDetail extends Component {
      */
     successJudge = () => {
         const data = this.state.data;
-        const { navigation : {state: {params : { index }}}} = this.props;
-        if(data.length >= 2 && index < 35){
-            return (
-                Alert.alert('',
-                    '恭喜通关，即将进入下一关！',
-                    [
-                        {text: 'OK', onPress: () => {
-                                this.setState({
-                                    data: [],
-                                    sentence: [],
-                                    text: ''
-                                })
-                                const navigateAction = NavigationActions.navigate({
-                                    routeName: 'GameDetail',
-                                    params: {
-                                        index: index+1
-                                    }
-                                });
-                                this.props.navigation.dispatch(navigateAction);
+        const { store: { game: { keyWords, blockade } } } = this.props.store;
+        if(data.length >= 2 && blockade < 35){
+            Alert.alert('',
+                '恭喜通关，即将进入下一关！',
+                [
+                    {text: '确定', onPress: () => {
+                            this.setState({
+                                data: [],
+                                sentences: [],
+                                text: ''
+                            });
+                            const { actionCreate, dispatch } = this.props;
+                            dispatch(actionCreate('SET_GAME_BLOCKADE', blockade+1));
+                        }},
+                ],
+                { cancelable: false }
 
-                                const { actionCreate, dispatch } = this.props;
-                                dispatch(actionCreate('SET_GAME_BLOCKADE', index+1));
-                            }},
-                    ]
-                )
-            );
+            )
         }else if(data.length >= 2 && index === 35){
             Alert.alert('',
                 '恭喜您全部通关！获得诗词小达人称号！',
                 [
-                    {text: 'OK', onPress: () => {
+                    {text: '确定', onPress: () => {
                             this.setState({
                                 data: [],
                                 sentence: [],
@@ -217,7 +213,8 @@ class GameDetail extends Component {
                             const { actionCreate, dispatch } = this.props;
                             dispatch(actionCreate('SET_GAME_BLOCKADE', 0));
                         }},
-                ]
+                ],
+                { cancelable: false }
             )
         }
     }
@@ -244,9 +241,8 @@ class GameDetail extends Component {
         //     this.popupDialog.show();
         // }sss
         // if()
-        const { navigation : {state: {params : { index }}}} = this.props;
-        const { store: { game: { keyWords } } } = this.props.store;
-        let keyWord = keyWords[index];
+        const { store: { game: { keyWords, blockade } } } = this.props.store;
+        let keyWord = keyWords[blockade];
         // console.log('index', index, keyWord);
         return (
             <ImageBackground source={require('../../images/gamebg3.jpeg')} style={{ alignItems:'center',width: screenWidth,height: screenHeight}}>

@@ -7,7 +7,8 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    ScrollView
 } from 'react-native';
 import Dimensions from 'Dimensions';
 import { service } from '../../utils/service';
@@ -80,7 +81,7 @@ class PointDetail extends Component<Props> {
                             if(item['@language'] === 'chs'){
                                 this.names.push(
                                     <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                        <Text>
+                                        <Text style={{ textDecorationLine: 'underline'}}>
                                             {item['@value']}
                                         </Text>
                                     </TouchableOpacity>
@@ -100,7 +101,7 @@ class PointDetail extends Component<Props> {
                         if(item['@language'] === 'chs'){
                             this.names.push(
                                 <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                    <Text>
+                                    <Text style={{ textDecorationLine: 'underline'}}>
                                         {item['@value']}
                                     </Text>
                                 </TouchableOpacity>
@@ -211,7 +212,7 @@ class PointDetail extends Component<Props> {
 
         this.relationTrans();
         return (
-            <View>
+            <View style={{ margin: 20}}>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {point.name}
@@ -222,41 +223,48 @@ class PointDetail extends Component<Props> {
                         {point.address || ''}
                     </Text>
                 </View>
-                {
-                    point.architecturalStyle || point.architectureStructure ? (
-                        <View>
-                            <Text style={styles.title}>
-                                建筑风格及简介
-                            </Text>
-                            <Text>
-                                {point.architecturalStyle || ''}
-                            </Text>
-                            <Text>
-                                {point.architectureStructure || ''}
-                            </Text>
-                        </View>
-                    ) : null
-                }
-                {
-                    point.designer ? (
-                        <View>
-                            <Text style={styles.title}>
-                                设计师
-                            </Text>
-                            {this.designers}
-                        </View>
-                    ) : null
-                }
-                {
-                    point.relation ? (
-                        <View>
-                            <Text style={styles.title}>
-                                相关人物
-                            </Text>
-                            {this.names}
-                        </View>
-                    ) : null
-                }
+                <ScrollView
+                    // style={styles.bodyContainer}
+                    contentContainerStyle={{ paddingTop: 10}}
+
+                >
+                    {
+                        point.architecturalStyle || point.architectureStructure ? (
+                            <View>
+                                <Text style={styles.title}>
+                                    建筑风格及简介
+                                </Text>
+                                <Text>
+                                    {point.architecturalStyle || ''}
+                                </Text>
+                                <Text>
+                                    {point.architectureStructure || ''}
+                                </Text>
+                            </View>
+                        ) : null
+                    }
+                    {
+                        point.designer ? (
+                            <View>
+                                <Text style={styles.title}>
+                                    设计师
+                                </Text>
+                                {this.designers}
+                            </View>
+                        ) : null
+                    }
+                    {
+                        point.relation ? (
+                            <View>
+                                <Text style={styles.title}>
+                                    相关人物
+                                </Text>
+                                {this.names}
+                            </View>
+                        ) : null
+                    }
+                </ScrollView>
+
 
             </View>
         );
@@ -279,6 +287,8 @@ export default connect(
     mapDispatchToProps
 )(PointDetail);
 
+const screenWidth = Dimensions.get('window').width;
+const screenHeight =  Dimensions.get('window').height;
 const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
@@ -290,14 +300,19 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
+
     },
     name:{
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 26,
+        fontFamily: '华文行楷',
     },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
-    }
+    },
+    bodyContainer: {
+        flex: 1,
+        width: screenWidth
+    },
 
 });

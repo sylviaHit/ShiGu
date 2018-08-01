@@ -104,7 +104,7 @@ class Person extends Component<Props> {
                                 let friends = this.state.friends;
                                 friends.push(
                                     <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                        <Text>
+                                        <Text style={{ textDecorationLine: 'underline'}}>
                                             {item['@value']}
                                         </Text>
                                     </TouchableOpacity>
@@ -128,7 +128,7 @@ class Person extends Component<Props> {
                             this.setState({
                                 friends: (
                                     <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                        <Text>
+                                        <Text style={{ textDecorationLine: 'underline'}}>
                                             {item['@value']}
                                         </Text>
                                     </TouchableOpacity>
@@ -224,11 +224,9 @@ class Person extends Component<Props> {
         if(works && Array.isArray(works)){
             works.forEach((item,index)=>{
                 workList.push(
-                    <TouchableOpacity key={index}>
-                        <Text>
-                            {item.title}
-                        </Text>
-                    </TouchableOpacity>
+                    <Text key={index}>
+                        {item.title}
+                    </Text>
 
                 );
             })
@@ -245,55 +243,74 @@ class Person extends Component<Props> {
         const { culture } = store;
         // console.log('culture', culture, point);
         return (
-            <ScrollView style={{padding: 20}}>
+            <View style={{ marginBottom: 40 }}>
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {name}
                     </Text>
-                    <Text>
-                        ({point.birthday || ''}-{point.deathday || ''})
-                    </Text>
+                    {
+                        point.birthday || point.deathday ? (
+                            <Text>
+                                <Text>
+                                    （{point.birthday || ''}
+                                </Text>
+                                -
+                                <Text>
+                                    {point.deathday || ''}）
+                                </Text>
+                            </Text>
+
+                        ) : null
+                    }
 
                 </View>
-                {
-                    point.briefBiography ? (
-                        <View>
-                            <Text style={styles.title}>人物小传</Text>
-                            <Text  style={!this.state.more ? styles.content : styles.more_content}>
-                                {point.gender ? `${point.gender},` : ''}
-                                {
-                                    this.briefBiographyTrans(point.briefBiography)
-                                }
-                            </Text>
-                            <TouchableOpacity onPress={this.openMore}>
-                                <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
-                            </TouchableOpacity>
+                <ScrollView
+                    style={{paddingLeft: 20}}
+                    contentContainerStyle={{ paddingBottom: 40}}
+                >
 
-                        </View>
-                    ) : null
-                }
-                {
-                    this.state.friends && this.state.friends.length !== 0 ?
-                        <View>
-                            <Text style={styles.title}>好友列表</Text>
-                            {
-                                this.state.friends
-                            }
-                        </View> : null
-                }
-                {
-                    point.creatorOf ?
-                        <View>
-                            <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
-                                <Text style={styles.title}>{this.state.workMore ? '收起作品列表' : '打开作品列表'}</Text>
-                            </TouchableOpacity>
+                    {
+                        point.briefBiography ? (
+                            <View>
+                                <Text style={styles.title}>人物小传</Text>
+                                <Text  style={!this.state.more ? styles.content : styles.more_content}>
+                                    {point.gender ? `${point.gender},` : ''}
+                                    {
+                                        this.briefBiographyTrans(point.briefBiography)
+                                    }
+                                </Text>
+                                <TouchableOpacity onPress={this.openMore}>
+                                    <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
+                                </TouchableOpacity>
 
-                            <View  style={!this.state.workMore ? styles.workList : styles.more_workList}>
-                                {this.renderWorks()}
                             </View>
-                        </View> : null
-                }
-            </ScrollView>
+                        ) : null
+                    }
+                    {
+                        this.state.friends && this.state.friends.length !== 0 ?
+                            <View>
+                                <Text style={styles.title}>好友列表</Text>
+                                {
+                                    this.state.friends
+                                }
+                            </View> : null
+                    }
+                    {
+                        point.creatorOf ?
+                            <View style={{paddingBottom: 40}}>
+                                <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
+                                    <Text style={styles.title}>{this.state.workMore ? '收起作品列表' : '打开作品列表'}</Text>
+                                </TouchableOpacity>
+
+                                <View  style={!this.state.workMore ? styles.workList : styles.more_workList}>
+                                    {this.renderWorks()}
+                                </View>
+                            </View> : null
+                    }
+                </ScrollView>
+            </View>
+
+
         );
     }
 }
@@ -313,11 +330,13 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(Person);
-
+const screenWidth = Dimensions.get('window').width;
+const screenHeight =  Dimensions.get('window').height;
 const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         width: null,
+        margin: 20
     },
     img:{
         width: 400,
@@ -339,10 +358,12 @@ const styles = StyleSheet.create({
     },
     workList: {
         width: this.screenWidth,
-        height: 0
+        height: 0,
+        padding: 8
     },
     more_workList: {
         width: this.screenWidth,
+        padding: 8
     },
     title: {
         fontSize: 18,
