@@ -35,6 +35,7 @@ class GameDetail extends Component {
             sentences: []
         };
         this.data = [];
+        this.successLength = 2;
     }
 
     componentWillMount() {
@@ -67,7 +68,7 @@ class GameDetail extends Component {
 
 
     /**
-     * 跳转到搜索页
+     * 行令
      */
     submit=()=>{
         const { navigation : {state: {params : { index }}}} = this.props;
@@ -76,7 +77,15 @@ class GameDetail extends Component {
         if(this.state.sentences.indexOf(this.state.text) === -1){
             service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
                 if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
+
                     let localNewData = this.state.data.concat();
+
+                    if(localNewData.length < this.successLength){
+                        Alert.alert('',
+                            '行令成功！'
+                        )
+                    }
+
                     localNewData.push({
                         sentence: this.state.text,
                         poem: response.ShiData
@@ -96,6 +105,8 @@ class GameDetail extends Component {
 
                     const { actionCreate, dispatch } = this.props;
                     dispatch(actionCreate('SET_GAME_DATA', newData));
+
+
                 }
             });
         }else{
@@ -142,11 +153,11 @@ class GameDetail extends Component {
                 sentence.push(
                     <View key={index} style={styles.container}>
                         <Text style={styles.sentence}>{item.sentence}</Text>
-                        <TouchableOpacity onPress={e=>this.goToPoemDetail(e, item.poem[index])}>
-                            <Text style={styles.title}>
-                                {this.renderTitle(item.poem)}
-                            </Text>
-                        </TouchableOpacity>
+                        {/*<TouchableOpacity onPress={e=>this.goToPoemDetail(e, item.poem[index])}>*/}
+                            {/*<Text style={styles.title}>*/}
+                                {/*{this.renderTitle(item.poem)}*/}
+                            {/*</Text>*/}
+                        {/*</TouchableOpacity>*/}
                     </View>
                 )
             })
@@ -185,7 +196,7 @@ class GameDetail extends Component {
                     ]
                 )
             );
-        }else if(data.length >= 2 && index < 35){
+        }else if(data.length >= 2 && index === 35){
             Alert.alert('',
                 '恭喜您全部通关！获得诗词小达人称号！',
                 [
@@ -243,7 +254,13 @@ class GameDetail extends Component {
                     <Text style={styles.keyWords}>{keyWord}</Text>
                 </View>
                 <View style={styles.input}>
-                    <TextInput placeholder={`请输入包含"${keyWord}"字的诗句`} value={this.state.text} editable={true} style={styles.inputStyle} onChangeText={this.onChangeText}/>
+                    <TextInput
+                        placeholder={`请输入包含"${keyWord}"字的诗句`}
+                        value={this.state.text}
+                        editable={true}
+                        style={styles.inputStyle}
+                        underlineColorAndroid={'transparent'}
+                        onChangeText={this.onChangeText}/>
                     <TouchableOpacity onPress={this.submit}>
                         <View style={styles.btn}>
                             <Text style={styles.submit}>行令</Text>
@@ -345,6 +362,7 @@ const styles = StyleSheet.create({
         fontFamily: '华文行楷',
         padding: 0,
         paddingLeft: 10,
+
     },
     btn:{
         width:85,
@@ -370,13 +388,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     sentence: {
-        fontSize: 18,
+        fontSize: 22,
         fontFamily: '华文行楷',
         width:210,
         paddingLeft: 10,
         paddingRight: 10,
         height: 50,
         lineHeight: 50,
+        color: '#000'
+        // borderBottomColor: "#d4f3d4",
+        // borderBottomWidth: 2
     },
     title: {
         width:155,
