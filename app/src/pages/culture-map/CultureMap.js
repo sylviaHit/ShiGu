@@ -262,13 +262,13 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     customMarker: {
-        backgroundColor: '#c5ffa9',
+        backgroundColor: '#fff',
         alignItems: 'center',
         borderRadius: 5,
         padding: 5,
     },
     markerText: {
-        color: '#fff',
+        color: '#000',
     },
     container: {
         position: 'absolute',

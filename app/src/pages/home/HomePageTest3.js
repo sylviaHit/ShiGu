@@ -25,7 +25,7 @@ class HomePageTest3 extends Component{
     }
 
     render() {
-        let pages=['Poetry', 'Person', 'Game', 'CultureMap', 'Scene'];
+        let pages=['Poetry', 'Person', 'Game', 'WuKangRoad', 'Scene'];
         let colors = [
             ['#f77695', '#dfe3e4', '#55236a'],
             ['#55843e', '#c5ffa9', '#7898b9'],

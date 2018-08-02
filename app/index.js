@@ -18,6 +18,7 @@ import SearchResult from "./src/pages/poetry/SearchResult";
 import PoetryHome from './src/pages/poetry/PoetryHome';
 import GameHome from './src/pages/game/GameHome';
 import GameDetail from './src/pages/game/GameDetail';
+import WuKangRoad from './src/pages/culture-map/WuKangRoad';
 
 const store = configureStore();
 
@@ -26,6 +27,7 @@ const RootStack = createStackNavigator(
         Home: { screen: HomePageTest3 },
         Poetry:{ screen: Poetry },
         PoemDetail: {screen: PoemDetail},
+        WuKangRoad:{ screen: WuKangRoad },
         CultureMap:{ screen: CultureMap },
         PointDetail: { screen: PointDetail },
         Person: { screen: Person },

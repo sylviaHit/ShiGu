@@ -21,8 +21,23 @@ import {connect} from "react-redux";
 class GameHome extends Component {
     static navigationOptions = {
         title: '',
-        header: null
+        header: null,
+        // headerTintColor: 'transparent'
+        // headerStyle: {
+        //     backgroundColor: 'transparent'
+        // }
     };
+    // static navigationOptions = {
+    //     title: '文化地图',
+    //     headerTitle: <Button title="文化地图"/>,
+    //     headerRight: (
+    //         <Button
+    //             onPress={() => alert('This is a button!')}
+    //             title="Info"
+    //             color="#fff"
+    //         />
+    //     ),
+    // };
 
     constructor(props) {
         super(props);
