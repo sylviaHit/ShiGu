@@ -19,11 +19,13 @@ import PoetryHome from './src/pages/poetry/PoetryHome';
 import GameHome from './src/pages/game/GameHome';
 import GameDetail from './src/pages/game/GameDetail';
 import WuKangRoad from './src/pages/culture-map/WuKangRoad';
+import Commend from './src/pages/commend/Commend';
 
 const store = configureStore();
 
 const RootStack = createStackNavigator(
     {
+        Commend: { screen: Commend },
         Home: { screen: HomePageTest3 },
         Poetry:{ screen: Poetry },
         PoemDetail: {screen: PoemDetail},
@@ -36,7 +38,7 @@ const RootStack = createStackNavigator(
         GameDetail: { screen: GameDetail }
     },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Commend',
         mode: 'modal',
         // headerMode: 'none',
     }

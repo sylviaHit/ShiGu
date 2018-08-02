@@ -1,4 +1,4 @@
-/**诗词游戏**/
+/**每日诗词推荐**/
 import React, {Component} from 'react';
 import {
     StyleSheet,
@@ -19,7 +19,7 @@ import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
 
-class GameHome extends Component {
+class Commend extends Component {
     static navigationOptions = {
         title: '',
         header: null,
@@ -43,105 +43,44 @@ class GameHome extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            closeMention: false,
-            keyWords: '人',
-            text: '',
-            data: []
+
         };
-        this.pageNo = 0;
-        this.dataAll = [];
-        this.data = [];
     }
 
     getData = () => {
-        service.get('https://api.sou-yun.com/api/poem', {
-            key: this.state.keyWords,
-            scope: 3,
-            pageNo: this.pageNo,
-            jsonType: true
-        }).then((response) => {
-            if (response.ShiData && response.ShiData.length > 0) {
-                this.dataAll.push(response.ShiData);
-                if (response.ShiData.length === 20) {
-                    this.pageNo += 1;
-                    // this.getData();
+        service.get('https://www.sojson.com/open/api/lunar/json.shtml').then((response) => {
+            if (response && response.message === 'success') {
+                console.log('response', response);
+                let month = response.data.month;
+                let day = response.data.day;
+                let jieqi = response.data.jieqi;
+                this.jieqiRecent = '';
+                let cha = 40;
+                for(let key in jieqi){
+                    let item = jieqi[key];
+                    console.log('item', item, key, cha, Math.abs(day-key));
+                    if(Math.abs(day-key)<cha){
+                        this.jieqiRecent = item;
+                        cha = Math.abs(day-key);
+                    }
                 }
+                console.log('this.jieqiRecent', this.jieqiRecent);
             }
         });
     }
 
     componentWillMount() {
-        this.dataAll = [];
         this.getData();
     }
 
     componentWillReceiveProps(nextProps) {
     }
 
-    /**
-     * 点击关卡
-     */
-    pressBlockade = (index) => {
-        const navigateAction = NavigationActions.navigate({
-            routeName: 'GameDetail',
-            params: {
-                index: index
-            }
-        });
-        this.props.navigation.dispatch(navigateAction);
-    }
-
-    /**
-     * 渲染关卡
-     * @returns {*}
-     */
-    renderBlockade = () => {
-        const {store: {game: {blockade, keyWords}}} = this.props.store;
-        let blockades = [];
-        for (let i = 0; i < 40; i++) {
-            //关卡样式位置
-            let left = 0;
-            if (i % 4 === 0) {
-                left = 28;
-            } else if ((i - 1) % 2 === 0) {
-                left = 126;
-            } else if ((i - 2) % 4 === 0) {
-                left = 224;
-            }
-
-            let keyWord = keyWords[i];//关键字
-
-            if (i <= blockade) {//已解锁关卡
-                blockades.push(
-                    <View style={styles.blockadeContainer} key={i}>
-                        <TouchableOpacity style={[styles.keyWordsContainer, {
-                            left: left,
-                            backgroundColor: '#fff',
-                            borderColor: '#fff'
-                        }]} onPress={e => this.pressBlockade(i, e)}>
-                            <Text style={[styles.keyWords, {color: '#000'}]}>{keyWord}</Text>
-                        </TouchableOpacity>
-                    </View>
-                )
-            } else {//未解锁关卡
-                blockades.push(
-                    <View style={styles.blockadeContainer} key={i}>
-
-
-                        <View style={[styles.keyWordsContainer, {left: left}]}>
-                            <Image source={require('../../images/lock.png')} style={{width: 30, height: 30}}/>
-                        </View>
-                    </View>
-                )
-            }
-        }
-        return blockades;
-    }
 
     render() {
         const {store} = this.props.store || store;
         return (
-            <ImageBackground source={require('../../images/gamebg1.jpg')}
+            <ImageBackground source={require('../../images/gamebg3.jpeg')}
                              style={{width: screenWidth, height: screenHeight}}>
                 <View style={{
                     borderColor: '#fff',
@@ -163,37 +102,7 @@ class GameHome extends Component {
                     contentContainerStyle={{alignItems: 'center', paddingTop: 40, paddingBottom: 40}}
 
                 >
-                    {this.renderBlockade()}
                 </ScrollView>
-                {/*<View style={{width: screenWidth, height: screenHeight, position: 'absolute'}}>*/}
-                    {/*<PopupDialog*/}
-                        {/*width={0.8}*/}
-                        {/*height={200}*/}
-                        {/*ref={(popupDialog) => {*/}
-                            {/*this.popupDialog = popupDialog;*/}
-                            {/*if (store && store.game && !store.game.mention) {*/}
-                                {/*// alert('游戏规则：sfdsfas');*/}
-                                {/*this.popupDialog.show();*/}
-                            {/*}*/}
-                        {/*}}*/}
-                    {/*>*/}
-                        {/*<View style={styles.pop}>*/}
-                            {/*<Text style={styles.popTitle}>游戏规则</Text>*/}
-                            {/*<Text style={styles.popTxt}>*/}
-                                {/*页面上方菱形块内的汉子为本轮游戏关键字，在输入框内输入一句包含关键字的诗句，*/}
-                                {/*若诗句输入正确，则轮到对手回答一句包含关键词的诗句，以此类推，若输入诗句错误，*/}
-                                {/*或超时未输入，则闯关失败！*/}
-                            {/*</Text>*/}
-                            {/*<TouchableOpacity style={styles.popCloseContainer} onPress={() => {*/}
-                                {/*console.log(this.popupDialog);*/}
-                                {/*this.popupDialog.dismiss()*/}
-                            {/*}}>*/}
-                                {/*<Text style={styles.popCloseTxt}>关闭并不再提示</Text>*/}
-                                {/*<Text style={styles.popCloseTxt}>(点击页面右上方图标可再次查看游戏规则）</Text>*/}
-                            {/*</TouchableOpacity>*/}
-                        {/*</View>*/}
-                    {/*</PopupDialog>*/}
-                {/*</View>*/}
             </ImageBackground>
         )
     }
@@ -215,7 +124,7 @@ function mapDispatchToProps(dispatch) {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(GameHome);
+)(Commend);
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
