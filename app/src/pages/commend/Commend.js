@@ -40,7 +40,6 @@ class Commend extends Component {
     getData = () => {
         service.get('https://www.sojson.com/open/api/lunar/json.shtml').then((response) => {
             if (response && response.message === 'success') {
-                console.log('response', response);
                 let month = response.data.month;
                 let day = response.data.day;
                 let jieqi = response.data.jieqi;
@@ -48,19 +47,15 @@ class Commend extends Component {
                 let cha = 40;
                 for(let key in jieqi){
                     let item = jieqi[key];
-                    console.log('item', item, key, cha, Math.abs(day-key));
                     if(Math.abs(day-key)<cha){
                         jieqiRecent = item;
                         cha = Math.abs(day-key);
                     }
                 }
-                console.log('jieqiRecent', jieqiRecent, data[jieqiRecent]);
                 let currentPoetry = data[jieqiRecent];
                 let index = Math.ceil(Math.random()*(currentPoetry.length-1));
                 let keyTitle = currentPoetry[index];
-                console.log('index', index, keyTitle);
                 service.get('https://api.sou-yun.com/api/poem', {key: keyTitle, scope: 2, jsonType: true}).then((response) => {
-                    console.log('response-------------', response);
                     if (response.ShiData && response.ShiData.length > 0) {
                         this.setState({
                             currentData: response.ShiData[0]
@@ -78,7 +73,18 @@ class Commend extends Component {
 
     componentWillReceiveProps(nextProps) {
     }
+    /**
+     * 前往主页
+     */
+    goToHome = () => {
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'Home',
+            params: {
 
+            }
+        });
+        this.props.navigation.dispatch(navigateAction);
+    }
 
     render() {
         let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
@@ -104,6 +110,11 @@ class Commend extends Component {
         return (
             <ImageBackground source={require('../../images/gamebg3.jpeg')}
                              style={{width: screenWidth, height: screenHeight}}>
+                <TouchableOpacity onPress={this.goToHome}>
+                    <Text style={{width: 360, textAlign: 'right', color: '#f00', padding: 10, fontSize:18, fontFamily: '华文行楷', textDecorationLine: 'underline'}}>
+                        跳过
+                    </Text>
+                </TouchableOpacity>
                 {id ?
                     <ScrollView style={styles.bodyContainer}>
                         <View style={styles.container}>
@@ -116,6 +127,7 @@ class Commend extends Component {
                         </View>
                     </ScrollView>
                 : null}
+
             </ImageBackground>
         )
     }
