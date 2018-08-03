@@ -141,7 +141,7 @@ class GameHome extends Component {
     render() {
         const {store} = this.props.store || store;
         return (
-            <ImageBackground source={require('../../images/gamebg1.jpg')}
+            <ImageBackground source={require('../../images/19.jpg')}
                              style={{width: screenWidth, height: screenHeight}}>
                 <View style={{
                     borderColor: '#fff',
@@ -152,10 +152,17 @@ class GameHome extends Component {
                     margin: 20,
                     marginBottom: 0
                 }}>
-                    <Text style={{fontSize: 30, fontFamily: '华文行楷', color: '#fff', textAlign: 'center'}}>游戏规则</Text>
-                    <Text style={{fontSize: 20, fontFamily: '华文行楷', color: '#000'}}>
-                        本游戏借鉴古代“飞花令”，每一关有一个关键字作为令牌，输入令牌后点击“行令”，
-                        若诗句正确，则行令成功，每一关行令成功10次，即可过关！
+                    <Text style={{fontSize: 22, fontFamily: '华文行楷', color: '#fff', textAlign: 'center'}}>游戏规则</Text>
+                    <Text style={{ fontFamily: '华文行楷', color: '#000'}}>
+                        本游戏借鉴古代“飞花令”，
+                        每一关有一个关键字作为令牌，
+                        输入令牌后点击“行令”，
+                        若诗句正确，则行令成功，
+                        每一关行令成功10次，即可过关！
+                    </Text>
+                    <Text style={{fontSize: 22, fontFamily: '华文行楷', color: '#fff', textAlign: 'center'}}>诗句规则</Text>
+                    <Text style={{ fontFamily: '华文行楷', color: '#000'}}>
+                        包含当前关的令牌，不少于五个字，不与已行令过的诗句重复
                     </Text>
                 </View>
                 <ScrollView

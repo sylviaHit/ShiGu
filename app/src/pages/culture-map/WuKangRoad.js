@@ -38,17 +38,6 @@ class WuKangRoad extends Component<Props> {
     }
 
     componentWillMount(){
-        {/*<ImageBackground source={require('../../images/wu2.jpg')} style={{ flex: 1,alignItems:'center',width: null, height: null}}>*/}
-        {/*<ScrollView*/}
-        {/*// style={styles.bodyContainer}*/}
-        {/*contentContainerStyle={{ paddingTop: 40}}*/}
-        {/*>*/}
-        {/*<View>*/}
-        {/*<Text style={{color: '#fff', fontSize: 30, fontFamily: '华文行楷'}}>五步一景，十步一重天</Text>*/}
-        {/*<Text style={{color: '#fff', fontSize: 26, fontFamily: '华文行楷'}}>————永不拓宽的武康路</Text>*/}
-        {/*</View>*/}
-        {/*</ScrollView>*/}
-        {/*</ImageBackground>*/}
     }
 
     /**
@@ -73,10 +62,10 @@ class WuKangRoad extends Component<Props> {
                     contentContainerStyle={{ paddingTop: 30, alignItems:'center'}}
                 >
                     <View>
-                        <Text style={{width: 360, textAlign: 'center', color: '#666', fontSize: 30, fontFamily: '华文行楷'}}>五步一景，十步一重天</Text>
-                        <Text style={{width: 360, textAlign: 'right', height: 50, lineHeight: 50, color: '#666', fontSize: 26, fontFamily: '华文行楷'}}>———永不拓宽的武康路</Text>
+                        <Text style={{width: 360, textAlign: 'center', color: '#666', fontSize: 26, fontFamily: '华文行楷'}}>五步一景，十步一重天</Text>
+                        <Text style={{width: 360, textAlign: 'right', height: 50, lineHeight: 50, color: '#666', fontSize: 20, fontFamily: '华文行楷'}}>———永不拓宽的武康路</Text>
                     </View>
-                    <Image source={require('../../images/guju25.jpg')} style={{ flex: 1,alignItems:'center',width: screenWidth-20, height: 300, borderRadius:10}}/>
+                    <Image source={require('../../images/guju25.jpg')} style={{ flex: 1,alignItems:'center',width: screenWidth-60, height: 240, borderRadius:10}}/>
                     <Text style={{padding: 10, fontSize:18, fontFamily: '华文行楷'}}>
                         武康路位于上海市徐汇区，原名福开森路，全长1183米，整条路呈弧线形。是文化国家部与文物局批准的“中国历史文化名街”。
                     </Text>

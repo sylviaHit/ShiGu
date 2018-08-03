@@ -39,7 +39,7 @@ class Search extends Component {
             service.get('https://api.sou-yun.com/api/poem', {
                 key: searchValue,
                 scope: item,
-                pageNo: 0 || 0,
+                pageNo: 0,
                 jsonType: true
             }).then((response) => {
                 //无数据

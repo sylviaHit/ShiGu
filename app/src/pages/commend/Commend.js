@@ -19,6 +19,10 @@ import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
 
+import { transFun } from '../../utils/fontTransform';
+
+const { toSim, toFan } = transFun;
+
 class Commend extends Component {
     static navigationOptions = {
         title: '',
@@ -49,7 +53,7 @@ class Commend extends Component {
                     let item = jieqi[key];
                     if(Math.abs(day-key)<cha){
                         jieqiRecent = item;
-                        cha = Math.abs(day-key);
+                         cha = Math.abs(day-key);
                     }
                 }
                 let currentPoetry = data[jieqiRecent];
@@ -91,17 +95,17 @@ class Commend extends Component {
         const { currentData } = this.state;
         if(currentData){
             id = currentData.Id || '';
-            title = currentData.Title && currentData.Title.Content || '';
-            subTitle = currentData.SubTitle && currentData.SubTitle.Content || '';
-            author = currentData.Author || '';
-            preface = currentData.Preface || '' ;
-            dynasty = currentData.Dynasty || '';
+            title = currentData.Title && toSim(currentData.Title.Content) || '';
+            subTitle = currentData.SubTitle && toSim(currentData.SubTitle.Content )|| '';
+            author = toSim(currentData.Author) || '';
+            preface = toSim(currentData.Preface) || '' ;
+            dynasty = toSim(currentData.Dynasty) || '';
             if(currentData.Clauses && currentData.Clauses.length>0){
                 currentData.Clauses.forEach((item,index)=>{
                     if(index%2 === 1){
-                        content += item.Content + '\n';
+                        content += toSim(item.Content) + '\n';
                     }else{
-                        content += item.Content;
+                        content += toSim(item.Content);
                     }
 
                 });

@@ -71,14 +71,20 @@ class Poetry extends Component {
                     timeContainerStyle={{minWidth: 52}}
                     timeStyle={{
                         textAlign: 'center',
+                        // width: 60,
                         // backgroundColor: '#ff9797',
                         backgroundColor: '#f3dc99',
                         color: 'white',
                         padding: 5,
-                        borderRadius: 13
+                        borderRadius: 10
+                    }}
+                    titleStyle={{
+                        fontSize: 14,
+                        fontFamily: '华文行楷'
                     }}
                     descriptionStyle={{color: 'gray',
-                        fontFamily: '华文行楷'}}
+                        fontFamily: '华文行楷',
+                        fontSize: 16}}
                     innerCircle={'dot'}
                     options={{
                         style: {paddingTop: 5}
@@ -118,6 +124,6 @@ const styles = StyleSheet.create({
     list: {
         flex: 1,
         // marginTop: 10,
-        paddingLeft: 20,
+        paddingLeft: 25,
     },
 });

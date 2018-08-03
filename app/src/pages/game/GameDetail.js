@@ -18,6 +18,9 @@ import Dimensions from 'Dimensions';
 import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
+import { transFun } from '../../utils/fontTransform';
+
+const { toSim, toFan } = transFun;
 
 class GameDetail extends Component {
     static navigationOptions = {
@@ -36,6 +39,7 @@ class GameDetail extends Component {
         };
         this.data = [];
         this.successLength = 2;
+        this.flag = false;
     }
 
     componentWillMount() {
@@ -72,54 +76,83 @@ class GameDetail extends Component {
      */
     submit=()=>{
         const { store: { game: { keyWords, blockade } } } = this.props.store;
-        let keyWord = keyWords[blockade];
-        if(this.state.sentences.indexOf(this.state.text) === -1){
-            service.get('https://api.sou-yun.com/api/poem', {key: this.state.text, scope: 3, jsonType: true}).then((response) => {
-                console.log(response, this.state.text.indexOf(keyWord) !== -1);
-                if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
-                    console.log(response, '111111111');
-                    let localNewData = this.state.data.concat();
+        const { state: { params: { index } } } = this.props.navigation;
+        let keyWord = keyWords[index];
+        if(this.state.text.length < 5){
+            Alert.alert('',
+                '每句不得少于五个字哦！',
+                [
+                    {text: '确定'}
+                ]
+            )
+        }else{
+            this.flag = false;
+            this.poem = {};
 
-                    if(localNewData.length+1 < this.successLength){
+            console.log(toFan, toSim);
+            console.log(toFan(this.state.text));
+            let newKeyWord = toFan(this.state.text);
+
+
+
+            if(this.state.sentences.indexOf(this.state.text) === -1){
+                service.get('https://api.sou-yun.com/api/poem', {key: newKeyWord, scope: 3, jsonType: true}).then((response) => {
+                    console.log(response, this.state.text.indexOf(keyWord) !== -1);
+                    if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
+                        console.log(response, '111111111', response.ShiData);
+                        for(let i=0;i<response.ShiData.length;i++){
+                            let item = response.ShiData[i];
+                            console.log(item, 'item');
+                            if(this.flag === true){
+                                break;
+                            }
+                            if(item.Clauses && Array.isArray(item.Clauses)){
+                                for(let j=0;j<item.Clauses.length;j++){
+                                    let _item = item.Clauses[j];
+                                    console.log(_item,  _item.Content.substring(0, _item.Content.length-1), newKeyWord, newKeyWord === _item.Content.substring(0, _item.Content.length-1));
+
+                                    if(newKeyWord === _item.Content.substring(0, _item.Content.length-1)){
+                                        console.log(_item, '_item', this.state.text, '2222222');
+                                        this.flag = true;
+                                        this.poem = item;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        console.log(this.flag);
+
+                        if(this.flag === true){
+                            this.successJudge();
+                        }else{
+                            Alert.alert('',
+                                '行令失败o(╥﹏╥)o 请输入正确诗句！',
+                                [
+                                    {text: '确定'}
+                                ]
+                            )
+                        }
+                    }else {
                         Alert.alert('',
-                            '行令成功！'
-                        )
-                    }else if(localNewData.length+1 === this.successLength){
-                        Alert.alert('',
-                            '恭喜通关，即将进入下一关！',
+                            '行令失败o(╥﹏╥)o 请输入正确诗句！',
+                            [
+                                {text: '确定'}
+                            ]
                         )
                     }
-
-                    localNewData.push({
-                        sentence: this.state.text,
-                        poem: response.ShiData
-                    });
-                    let localNewSentences = this.state.sentences.concat();
-                    localNewSentences.push(this.state.text);
-                    this.setState({
-                        data: localNewData,
-                        sentences: localNewSentences
-                    });
-
-                    // let newData = Object.assign({}, data);
-                    // if(!newData[keyWord]){
-                    //     newData[keyWord] = [];
-                    // }
-                    // newData[keyWord].push(this.state.text);
-                    //
-                    // const { actionCreate, dispatch } = this.props;
-                    // dispatch(actionCreate('SET_GAME_DATA', newData));
-
-
-                }
-            });
-        }else{
-            return (
-                Alert.alert('',
-                    '此诗句已存在'
+                });
+            }else{
+                return (
+                    Alert.alert('',
+                        '此诗句已存在',
+                        [
+                            {text: '确定'}
+                        ]
+                    )
                 )
-            )
+            }
         }
+
 
     }
 
@@ -156,12 +189,13 @@ class GameDetail extends Component {
             this.state.data.forEach((item, index) => {
                 sentence.push(
                     <View key={index} style={styles.container}>
-                        <Text style={styles.sentence}>{item.sentence}</Text>
-                        {/*<TouchableOpacity onPress={e=>this.goToPoemDetail(e, item.poem[index])}>*/}
+                        {/*<Text style={styles.sentence}>{item.sentence}</Text>*/}
+                        <TouchableOpacity onPress={e=>this.goToPoemDetail(e, item.poem)}>
+                            <Text style={styles.sentence}>{item.sentence}</Text>
                             {/*<Text style={styles.title}>*/}
                                 {/*{this.renderTitle(item.poem)}*/}
                             {/*</Text>*/}
-                        {/*</TouchableOpacity>*/}
+                        </TouchableOpacity>
                     </View>
                 )
             })
@@ -173,9 +207,40 @@ class GameDetail extends Component {
      * 判断是否通关
      */
     successJudge = () => {
-        const data = this.state.data;
         const { store: { game: { keyWords, blockade } } } = this.props.store;
-        if(data.length >= 2 && blockade < 35){
+        const { state: { params: { index } } } = this.props.navigation;
+
+        let localNewData = this.state.data.concat();
+
+        if(localNewData.length+1 < this.successLength){
+            let temp = this.successLength - localNewData.length - 1;
+            if(temp%2 === 0){
+                Alert.alert('',
+                    `好棒！还差${temp}句就通关啦， 加油！`,
+                    [
+                        {text: '确定'}
+                    ]
+                )
+            }else{
+                Alert.alert('',
+                    `行令成功！还差${temp}句就通关啦， 加油！`,
+                    [
+                        {text: '确定'}
+                    ]
+                )
+            }
+            localNewData.push({
+                sentence: this.state.text,
+                poem: this.poem
+            });
+            let localNewSentences = this.state.sentences.concat();
+            localNewSentences.push(this.state.text);
+            this.setState({
+                data: localNewData,
+                sentences: localNewSentences,
+                text: ''
+            });
+        }else if(localNewData.length+1 === this.successLength && blockade < 35){
             Alert.alert('',
                 '恭喜通关，即将进入下一关！',
                 [
@@ -185,14 +250,36 @@ class GameDetail extends Component {
                                 sentences: [],
                                 text: ''
                             });
-                            const { actionCreate, dispatch } = this.props;
-                            dispatch(actionCreate('SET_GAME_BLOCKADE', blockade+1));
+
+
+
+                            if(index === blockade){
+                                const { actionCreate, dispatch } = this.props;
+                                dispatch(actionCreate('SET_GAME_BLOCKADE', blockade+1));
+
+                                const navigateAction = NavigationActions.navigate({
+                                    routeName: 'GameDetail',
+                                    params: {
+                                        index: blockade+1
+                                    }
+                                });
+                                this.props.navigation.dispatch(navigateAction);
+                            }else{
+                                const navigateAction = NavigationActions.navigate({
+                                    routeName: 'GameDetail',
+                                    params: {
+                                        index: index+1
+                                    }
+                                });
+                                this.props.navigation.dispatch(navigateAction);
+                            }
+
                         }},
                 ],
                 { cancelable: false }
 
             )
-        }else if(data.length >= 2 && index === 35){
+        }else if(localNewData.length+1 === this.successLength && blockade === 35){
             Alert.alert('',
                 '恭喜您全部通关！获得诗词小达人称号！',
                 [
@@ -202,6 +289,11 @@ class GameDetail extends Component {
                                 sentence: [],
                                 text: ''
                             })
+
+                            const { actionCreate, dispatch } = this.props;
+                            dispatch(actionCreate('SET_GAME_BLOCKADE', 0));
+
+
                             const navigateAction = NavigationActions.navigate({
                                 routeName: 'GameDetail',
                                 params: {
@@ -209,9 +301,6 @@ class GameDetail extends Component {
                                 }
                             });
                             this.props.navigation.dispatch(navigateAction);
-
-                            const { actionCreate, dispatch } = this.props;
-                            dispatch(actionCreate('SET_GAME_BLOCKADE', 0));
                         }},
                 ],
                 { cancelable: false }
@@ -223,6 +312,7 @@ class GameDetail extends Component {
      * 跳转到诗词详情页
      */
     goToPoemDetail = (e, item) => {
+        console.log('----------', item);
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
             params: {
@@ -234,18 +324,19 @@ class GameDetail extends Component {
     }
 
     render() {
-        // console.log('this.props-------------', this.props);
+        console.log('this.props-------------', this.props);
         const { store } = this.props.store || store;
+        const { state: { params: { index } } } = this.props.navigation;
         // if(store && store.game && !store.game.mention){
         //     // alert('游戏规则：sfdsfas');
         //     this.popupDialog.show();
         // }sss
         // if()
         const { store: { game: { keyWords, blockade } } } = this.props.store;
-        let keyWord = keyWords[blockade];
+        let keyWord = keyWords[index];
         // console.log('index', index, keyWord);
         return (
-            <ImageBackground source={require('../../images/gamebg3.jpeg')} style={{ alignItems:'center',width: screenWidth,height: screenHeight}}>
+            <ImageBackground source={srcs[index]} style={{ alignItems:'center',width: screenWidth,height: screenHeight}}>
                 <View style={styles.keyWordsContainer}>
                     <Text style={styles.keyWords}>{keyWord}</Text>
                 </View>
@@ -266,7 +357,7 @@ class GameDetail extends Component {
                 <ScrollView style={styles.bodyContainer}>
                     {this.renderSentence()}
                 </ScrollView>
-                {this.successJudge()}
+                {/*{this.successJudge()}*/}
                 {/*<View style={{width: screenWidth, height: screenHeight, position: 'absolute'}}>*/}
                 {/*<PopupDialog*/}
                 {/*width={0.8}*/}
@@ -391,7 +482,8 @@ const styles = StyleSheet.create({
         paddingRight: 10,
         height: 50,
         lineHeight: 50,
-        color: '#000'
+        color: '#000',
+        textDecorationLine: 'underline'
         // borderBottomColor: "#d4f3d4",
         // borderBottomWidth: 2
     },
@@ -430,3 +522,47 @@ const styles = StyleSheet.create({
         fontSize:14,
     }
 });
+
+const srcs = [
+    require('../../images/gamebg3.jpeg'),
+    require('../../images/19.jpg'),
+    require('../../images/6.jpeg'),
+    require('../../images/20.jpeg'),
+    require('../../images/20.jpeg'),
+    require('../../images/12.jpeg'),
+    require('../../images/10.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/1.jpg'),
+    require('../../images/8.jpg'),
+    require('../../images/11.jpg'),
+    require('../../images/2.jpg'),
+    require('../../images/16.jpg'),
+    require('../../images/13.jpg'),
+    require('../../images/17.jpg'),
+    require('../../images/10.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/7.jpg'),
+
+    require('../../images/2.jpg'),
+    require('../../images/19.jpg'),
+    require('../../images/6.jpeg'),
+    require('../../images/20.jpeg'),
+    require('../../images/10.jpg'),
+    require('../../images/12.jpeg'),
+    require('../../images/10.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/16.jpg'),
+    require('../../images/16.jpg'),
+    require('../../images/9.jpg'),
+    require('../../images/11.jpg'),
+    require('../../images/2.jpg'),
+    require('../../images/16.jpg'),
+    require('../../images/13.jpg'),
+    require('../../images/17.jpg'),
+    require('../../images/10.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/15.jpg'),
+    require('../../images/7.jpg'),
+];

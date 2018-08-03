@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
-    Button
+    Button, Alert
 } from 'react-native';
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
@@ -16,6 +16,10 @@ import Search from './Search';
 import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
+
+import { transFun } from '../../utils/fontTransform';
+
+const { toSim, toFan } = transFun;
 
 class PoemDetail extends Component {
     static navigationOptions = {
@@ -114,8 +118,78 @@ class PoemDetail extends Component {
         })
     }
 
+    /**
+     * 跳转到作者详情页
+     */
+    goToAuthorResult = (author) => {
+        // const {actionCreate, dispatch} = this.props;
+        // dispatch(actionCreate('SET_POETRY_SEARCH_VALUE_ITEM', {
+        //     searchValue: author,
+        //     item: 'author'
+        // }));
+        let searchValue = author;
+        const {store: {poetry: { data}}} = this.props.store;
+
+        let newData = Object.assign({}, data);
+        console.log('newData' , newData, newData[searchValue]);
+
+        if (!(newData[searchValue] && newData[searchValue][0])) {
+            service.get('https://api.sou-yun.com/api/poem', {
+                key: author,
+                scope: 'author',
+                pageNo: 0,
+                jsonType: true
+            }).then((response) => {
+                //无数据
+                if (response === null) {
+                    return (
+                        Alert.alert('',
+                            '无更多数据',
+                            [
+                                {text: '确定'}
+                            ]
+                        )
+                    )
+                }
+                if (response.ShiData && response.ShiData.length > 0) {
+                    console.log('response' , response);
+                    if (newData && newData[searchValue]) {
+                        newData[searchValue][0] = response;
+                    } else if (newData && !newData[searchValue]) {
+                        newData[searchValue] = [];
+                        newData[searchValue][0] = response;
+                    }
+                    const {actionCreate, dispatch} = this.props;
+                    dispatch(actionCreate('SET_POETRY_DATA', {
+                        data: newData,
+                        currentPage: 0,
+                        currentStartPage: 0,
+                        searchValue: author,
+                        item: 'author'
+                    }));
+
+                    const navigateAction = NavigationActions.navigate({
+                        routeName: 'Result',
+                        params: {
+                            searchValue: searchValue
+                        }
+                    });
+                    this.props.navigation.dispatch(navigateAction);
+                }
+            });
+        }else if(newData[searchValue] && newData[searchValue][0]){
+            console.log('222');
+            const navigateAction = NavigationActions.navigate({
+                routeName: 'Result',
+                params: {
+                    searchValue: searchValue
+                }
+            });
+            this.props.navigation.dispatch(navigateAction);
+        }
+    }
+
     render() {
-        let me = this;
         const { navigation } = this.props;
         let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
         let data;
@@ -123,17 +197,17 @@ class PoemDetail extends Component {
             const data = navigation.state.params.data;
             if(data){
                 id = data.Id || '';
-                title = data.Title && data.Title.Content || '';
-                subTitle = data.SubTitle && data.SubTitle.Content || '';
-                author = data.Author || '';
-                preface = data.Preface || '' ;
-                dynasty = data.Dynasty || '';
+                title = data.Title && toSim(data.Title.Content) || '';
+                subTitle = data.SubTitle && toSim(data.SubTitle.Content )|| '';
+                author = toSim(data.Author) || '';
+                preface = toSim(data.Preface) || '' ;
+                dynasty = toSim(data.Dynasty) || '';
                 if(data.Clauses && data.Clauses.length>0){
                     data.Clauses.forEach((item,index)=>{
                         if(index%2 === 1){
-                            content += item.Content + '\n';
+                            content += toSim(item.Content) + '\n';
                         }else{
-                            content += item.Content;
+                            content += toSim(item.Content);
                         }
 
                     });
@@ -153,7 +227,27 @@ class PoemDetail extends Component {
                             <Text style={styles.allTitle}>
                                 {title}{subTitle ? `·${subTitle}` : ''}
                             </Text>
-                            <Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
+                            <View style={{flexDirection: 'row', marginTop: 5}}>
+                                {
+                                    dynasty ? <Text style={{ fontSize: 12}}>[</Text> : null
+                                }
+                                {
+                                    dynasty ? <Text style={{fontFamily: '华文行楷', fontSize: 16}}>{dynasty}</Text> : null
+                                }
+                                {
+                                    dynasty ? <Text style={{ fontSize: 12}}>]</Text> : null
+                                }
+                                {
+                                    author && author !== '阙名' ?
+                                        <TouchableOpacity onPress={e=>this.goToAuthorResult(author, e)}>
+                                            <Text style={{textDecorationLine: 'underline', marginLeft: 3, fontFamily: '华文行楷', fontSize: 16}}>
+                                                {author}
+                                            </Text>
+                                        </TouchableOpacity> : null
+                                }
+
+                            </View>
+
                             { preface ? <Text style={styles.preface}>{preface}</Text> : null }
                             <Text style={styles.content}>{content}</Text>
                         </View>
@@ -212,7 +306,8 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 20,
         width: 300,
-        textAlign: 'center'
+        textAlign: 'center',
+        fontFamily: '华文行楷'
     },
     title: {
         fontSize: 18,
@@ -234,6 +329,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         lineHeight:28,
         fontSize: 16,
+        fontFamily: '华文行楷'
     },
     myContainer:{
         marginTop:30,
