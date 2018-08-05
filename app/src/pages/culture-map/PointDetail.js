@@ -58,7 +58,6 @@ class PointDetail extends Component<Props> {
                 name: name,
                 point: point
             },
-            action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
         });
         this.props.navigation.dispatch(navigateAction);
     };

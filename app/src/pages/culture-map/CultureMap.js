@@ -129,7 +129,6 @@ class CultureMap extends Component {
         const navigateAction = NavigationActions.navigate({
             routeName: 'PointDetail',
             params: {point: point},
-            action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
         });
 
         this.props.navigation.dispatch(navigateAction);

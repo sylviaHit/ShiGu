@@ -152,7 +152,7 @@ class GameHome extends Component {
                     margin: 20,
                     marginBottom: 0
                 }}>
-                    <Text style={{fontSize: 22, fontFamily: '华文行楷', color: '#0f35a9s', textAlign: 'center'}}>游戏规则</Text>
+                    <Text style={{fontSize: 22, fontFamily: '华文行楷', color: '#0f35a9', textAlign: 'center'}}>游戏规则</Text>
                     <Text style={{ fontFamily: '华文行楷', color: '#000'}}>
                         本游戏借鉴古代“飞花令”，
                         每一关有一个关键字作为令牌，

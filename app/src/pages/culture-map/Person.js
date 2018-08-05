@@ -69,9 +69,7 @@ class Person extends Component<Props> {
                             this.state.dataMap[item['@value']] = person;
                         }
                     })
-
                 }
-
             })
         }
         return names;
@@ -87,7 +85,6 @@ class Person extends Component<Props> {
                 name: name,
                 point: point
             },
-            action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
         });
         this.props.navigation.dispatch(navigateAction);
     };
@@ -123,7 +120,6 @@ class Person extends Component<Props> {
                         dataMap[uri] =  response;
                         dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
                     }
-
                 });
             });
         }else if(friendOf){
@@ -147,7 +143,6 @@ class Person extends Component<Props> {
                 dataMap[friendOf] = response;
                 dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
             });
-
         }else {
             this.setState({
                 friends: []
@@ -202,12 +197,39 @@ class Person extends Component<Props> {
     getWork = (e, creatorOf) => {
         let works = [];
         if(!this.state.workMore){
-            if(creatorOf && Array.isArray(creatorOf)){
-                creatorOf.forEach((item,index)=>{
-                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                        this.setState({
-                            loading: true
-                        })
+            if(creatorOf){
+                if(Array.isArray(creatorOf)){
+                    creatorOf.forEach((item,index)=>{
+                        service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                            this.setState({
+                                loading: true
+                            })
+                            if(response === null){
+                                Alert.alert('',
+                                    '无数据o(╥﹏╥)o',
+                                    [
+                                        {text: '确定'}
+                                    ]
+                                )
+                                this.setState({
+                                    loading: falses
+                                })
+                            }
+                            if(response){
+                                works.push(response);
+                                if(works.length === creatorOf.length){
+                                    this.setState({
+                                        works: works,
+                                        workMore: !this.state.workMore,
+                                        loading: false
+                                    })
+                                }
+                            }
+
+                        });
+                    })
+                }else{
+                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: creatorOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
                         if(response === null){
                             Alert.alert('',
                                 '无数据o(╥﹏╥)o',
@@ -215,42 +237,16 @@ class Person extends Component<Props> {
                                     {text: '确定'}
                                 ]
                             )
-                            this.setState({
-                                loading: falses
-                            })
                         }
                         if(response){
-                            works.push(response);
-                            if(works.length === creatorOf.length){
-                                this.setState({
-                                    works: works,
-                                    workMore: !this.state.workMore,
-                                    loading: false
-                                })
-                            }
+                            works = response;
+                            this.setState({
+                                works: works,
+                                workMore: !this.state.workMore
+                            })
                         }
-
                     });
-                })
-            }else{
-                service.get('http://data1.library.sh.cn/data/jsonld', {uri: creatorOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    if(response === null){
-                        Alert.alert('',
-                            '无数据o(╥﹏╥)o',
-                            [
-                                {text: '确定'}
-                            ]
-                        )
-                    }
-                    if(response){
-                        works = response;
-                        this.setState({
-                            works: works,
-                            workMore: !this.state.workMore
-                        })
-                    }
-
-                });
+                }
             }
         }
     }
@@ -263,15 +259,89 @@ class Person extends Component<Props> {
         let workList = [];
         if(works && Array.isArray(works)){
             works.forEach((item,index)=>{
+                let title = '';
+                if(item.title && Array.isArray(item.title) && item.title[0]){
+                    title =  item.title[0]['@value'];
+                }else if(item.title){
+                    title = item.title;
+                }
                 workList.push(
                     <Text key={index}>
-                        {item.title}
+                        {title}
                     </Text>
 
                 );
             })
+        }else if(works){
+            let title = '';
+            if(works.title && Array.isArray(works.title) && works.title[0]){
+                title =  works.title[0]['@value'];
+            }else if(works.title){
+                title = works.title;
+            }
+            workList.push(
+                <Text key={1}>
+                    {title}
+                </Text>
+            );
         }
         return workList;
+    }
+
+    renderBody = (point) =>{
+        let elems = [];
+        if( point.briefBiography){
+            elems.push(
+                <View>
+                    <Text style={styles.title}>人物小传</Text>
+                    <Text  style={!this.state.more ? styles.content : styles.more_content}>
+                        {point.gender ? `${point.gender},` : ''}
+                        {
+                            this.briefBiographyTrans(point.briefBiography)
+                        }
+                    </Text>
+                    <TouchableOpacity onPress={this.openMore}>
+                        <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
+                    </TouchableOpacity>
+
+                </View>
+            )
+        }
+        if(this.state.friends && this.state.friends.length !== 0){
+            elems.push(
+                <View>
+                    <Text style={styles.title}>好友列表</Text>
+                    <View style={{padding: 8}}>
+                        {
+                            this.state.friends
+                        }
+                    </View>
+
+                </View>
+            )
+        }
+        if(point.creatorOf){
+            elems.push(
+                <View style={{paddingBottom: 40}}>
+                    <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
+                        <Text style={styles.title}>获取作品列表</Text>
+                    </TouchableOpacity>
+
+                    <View  style={styles.more_workList}>
+                        {this.renderWorks()}
+                    </View>
+                </View>
+            )
+        }
+        if(elems.length === 0){
+            return (
+                <View style={{ alignItems: 'center' }}>
+                    <Text>暂无数据o(╥﹏╥)o</Text>
+                </View>
+            );
+        }else{
+            return elems;
+        }
     }
 
     render() {
@@ -310,48 +380,8 @@ class Person extends Component<Props> {
                     style={{paddingLeft: 20}}
                     contentContainerStyle={{ paddingBottom: 40}}
                 >
+                    {this.renderBody(point)}
 
-                    {
-                        point.briefBiography ? (
-                            <View>
-                                <Text style={styles.title}>人物小传</Text>
-                                <Text  style={!this.state.more ? styles.content : styles.more_content}>
-                                    {point.gender ? `${point.gender},` : ''}
-                                    {
-                                        this.briefBiographyTrans(point.briefBiography)
-                                    }
-                                </Text>
-                                <TouchableOpacity onPress={this.openMore}>
-                                    <Text style={styles.open_more}>{this.state.more ? '收起内容' : '查看更多'}</Text>
-                                </TouchableOpacity>
-
-                            </View>
-                        ) : null
-                    }
-                    {
-                        this.state.friends && this.state.friends.length !== 0 ?
-                            <View>
-                                <Text style={styles.title}>好友列表</Text>
-                                <View style={{padding: 8}}>
-                                    {
-                                        this.state.friends
-                                    }
-                                </View>
-
-                            </View> : null
-                    }
-                    {
-                        point.creatorOf ?
-                            <View style={{paddingBottom: 40}}>
-                                <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
-                                    <Text style={styles.title}>获取作品列表</Text>
-                                </TouchableOpacity>
-
-                                <View  style={!this.state.workMore ? styles.workList : styles.more_workList}>
-                                    {this.renderWorks()}
-                                </View>
-                            </View> : null
-                    }
                 </ScrollView>
             </ImageBackground>
         );
@@ -412,7 +442,7 @@ const styles = StyleSheet.create({
     },
     more_workList: {
         width: screenWidth,
-        padding: 8
+        padding: 8,
     },
     title: {
         fontSize: 18,
