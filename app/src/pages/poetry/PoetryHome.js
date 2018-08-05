@@ -66,10 +66,10 @@ class PoetryHome extends Component {
             status: 'result'
         });
         const { store:{poetry : { searchValue, item }} } = this.props.store;
-        console.log(searchValue, item);
+        // console.log(searchValue, item);
         if(searchValue){
             if(!this.props.onGetData){
-                console.log('跳转');
+                // console.log('跳转');
                 const navigateAction = NavigationActions.navigate({
                     routeName: 'Result',
                     params: {
@@ -90,7 +90,7 @@ class PoetryHome extends Component {
         const { searchValue } = this.state;
         const { state: { routeName } } = this.props.navigation;
         const { status } = this.state;
-        console.log('status', status);
+        // console.log('status', status);
         let Component = null;
         switch(status){
             case 'home':

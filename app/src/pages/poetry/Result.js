@@ -36,7 +36,7 @@ class Result extends Component {
     }
 
     componentWillMount(){
-        console.log('111111111111')
+        // console.log('111111111111')
         const { navigation } = this.props;
         let results = [];
 

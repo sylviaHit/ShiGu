@@ -8,7 +8,9 @@ import {
     Text,
     Image,
     TouchableOpacity,
-    ScrollView
+    ScrollView,
+    Alert,
+    ImageBackground
 } from 'react-native';
 import Dimensions from 'Dimensions';
 import { service } from '../../utils/service';
@@ -17,6 +19,7 @@ import {
     actionCreate
 } from "../../redux/reducer";
 import {NavigationActions} from "react-navigation";
+import Loading from '../../utils/Loading';
 
 type Props = {};
 class PointDetail extends Component<Props> {
@@ -28,7 +31,8 @@ class PointDetail extends Component<Props> {
     constructor(props){
         super(props);
         this.state = {
-            point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {}
+            point: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.point || {},
+            loading: false
         }
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
@@ -68,14 +72,50 @@ class PointDetail extends Component<Props> {
         const { store } = this.props.store;
         const { culture } = store;
         let relations = relation.split(';');
-        // console.log('point', point);
         this.names = [];
         this.designers = [];
         let dataMap = {};
-        relations.forEach((uri,index)=>{
-            if(!culture || !culture[uri]){  //未请求过此数据
-                service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    // console.log('请求数据');
+        if(relation){
+            relations.forEach((uri,index)=>{
+                if(!culture || !culture[uri]){  //未请求过此数据
+                    this.state.loading = true;
+                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                        // if(response === null){
+                        //     Alert.alert('',
+                        //         '数据请求失败o(╥﹏╥)o',
+                        //         [
+                        //             {text: '确定'}
+                        //         ]
+                        //     );
+                        //     this.setState({
+                        //         loading: false
+                        //     })
+                        //     return;
+                        // }
+
+                        if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                            response.name.forEach(item=>{
+                                if(item['@language'] === 'chs'){
+                                    this.names.push(
+                                        <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                            <Text style={{ textDecorationLine: 'underline'}}>
+                                                {item['@value']}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )
+                                }
+                            })
+
+                            dataMap[uri] = response;
+                            // dataMap.set(uri, response);
+                            dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                        }
+                        this.setState({
+                            loading: false
+                        })
+                    });
+                } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
+                    let response = culture[uri];
                     if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                         response.name.forEach(item=>{
                             if(item['@language'] === 'chs'){
@@ -88,34 +128,29 @@ class PointDetail extends Component<Props> {
                                 )
                             }
                         })
-
                     }
-                    dataMap[uri] = response;
-                    // dataMap.set(uri, response);
-                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
-                });
-            } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
-                let response = culture[uri];
-                if(response.name && Array.isArray(response.name) && response.name.length !== 0){
-                    response.name.forEach(item=>{
-                        if(item['@language'] === 'chs'){
-                            this.names.push(
-                                <TouchableOpacity key={index} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                    <Text style={{ textDecorationLine: 'underline'}}>
-                                        {item['@value']}
-                                    </Text>
-                                </TouchableOpacity>
-                            )
-                        }
-                    })
                 }
-            }
-        });
+            });
+        }
+
         if(Array.isArray(designer) && designer.length > 0){
             designer.forEach((uri,index)=>{
                 if(!culture || !culture[uri]){  //未请求过此数据
+                    this.state.loading = true;
+
                     service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                        // console.log('请求数据');
+                        // if(response === null){
+                        //     Alert.alert('',
+                        //         '数据请求失败o(╥﹏╥)o',
+                        //         [
+                        //             {text: '确定'}
+                        //         ]
+                        //     );
+                        //     this.setState({
+                        //         loading: false
+                        //     })
+                        //     return;
+                        // }
                         if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                             response.name.forEach(item=>{
                                 if(item['@language'] === 'chs'){
@@ -129,10 +164,13 @@ class PointDetail extends Component<Props> {
                                 }
                             })
 
+                            dataMap[uri] = response;
+                            // dataMap.set(uri, response);
+                            dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
                         }
-                        dataMap[uri] = response;
-                        // dataMap.set(uri, response);
-                        dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                        this.setState({
+                            loading: false
+                        })
                     });
                 } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
                     let response = culture[uri];
@@ -153,9 +191,45 @@ class PointDetail extends Component<Props> {
             });
         }else{
             let uri = designer;
-            if(!culture || !culture[uri]){  //未请求过此数据
-                service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    // console.log('请求数据');
+            if(uri){
+                if(!culture || !culture[uri]){  //未请求过此数据
+                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: uri, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                        this.state.loading = true;
+                        // if(response === null){
+                        //     Alert.alert('',
+                        //         '数据请求失败o(╥﹏╥)o',
+                        //         [
+                        //             {text: '确定'}
+                        //         ]
+                        //     );
+                        //     this.setState({
+                        //         loading: false
+                        //     })
+                        //     return;
+                        // }
+                        if(response.name && Array.isArray(response.name) && response.name.length !== 0){
+                            response.name.forEach(item=>{
+                                if(item['@language'] === 'chs'){
+                                    this.designers.push(
+                                        <TouchableOpacity key={item['@value']} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
+                                            <Text>
+                                                {item['@value']}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )
+                                }
+                            })
+
+                            dataMap[uri] = response;
+                            // dataMap.set(uri, response);
+                            dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+                        }
+                        this.setState({
+                            loading: false
+                        })
+                    });
+                } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
+                    let response = culture[uri];
                     if(response.name && Array.isArray(response.name) && response.name.length !== 0){
                         response.name.forEach(item=>{
                             if(item['@language'] === 'chs'){
@@ -168,28 +242,10 @@ class PointDetail extends Component<Props> {
                                 )
                             }
                         })
-
                     }
-                    dataMap[uri] = response;
-                    // dataMap.set(uri, response);
-                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
-                });
-            } else if(culture && culture[uri]){    //已请求过直接从 store 中获取
-                let response = culture[uri];
-                if(response.name && Array.isArray(response.name) && response.name.length !== 0){
-                    response.name.forEach(item=>{
-                        if(item['@language'] === 'chs'){
-                            this.designers.push(
-                                <TouchableOpacity key={item['@value']} onPress={(e) => this.goToPerson(e, response, item['@value'])}>
-                                    <Text>
-                                        {item['@value']}
-                                    </Text>
-                                </TouchableOpacity>
-                            )
-                        }
-                    })
                 }
             }
+
         }
 
 
@@ -212,7 +268,12 @@ class PointDetail extends Component<Props> {
 
         this.relationTrans();
         return (
-            <View style={{ margin: 20}}>
+            <ImageBackground  source={require('../../images/poetry-bg-2.jpg')}
+                              style={{width: screenWidth, height: screenHeight, marginBottom: 40, padding: 20}}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {point.name}
@@ -224,7 +285,6 @@ class PointDetail extends Component<Props> {
                     </Text>
                 </View>
                 <ScrollView
-                    // style={styles.bodyContainer}
                     contentContainerStyle={{ paddingTop: 10}}
 
                 >
@@ -266,7 +326,7 @@ class PointDetail extends Component<Props> {
                 </ScrollView>
 
 
-            </View>
+            </ImageBackground>
         );
     }
 }

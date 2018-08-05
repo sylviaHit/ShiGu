@@ -9,6 +9,7 @@ import {service} from "../../utils/service";
 import RadioModal from 'react-native-radio-master';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
+import Loading from '../../utils/Loading';
 
 class Search extends Component {
     // 构造
@@ -16,7 +17,9 @@ class Search extends Component {
         super(props);
         this.state = {
             searchValue: '',
-            initId: 'all'
+            initId: 'all',
+            item: 'all',
+            loading: false
         }
         this.data = data;
     }
@@ -34,21 +37,29 @@ class Search extends Component {
 
     fetchData = () => {
         const {store: {poetry: {searchValue, item, data}}} = this.props.store;
+        const currentItem = this.state.item;
         let newData = Object.assign({}, data);
-        if (!(newData[searchValue] && newData[searchValue][0] && Array.isArray(newData[searchValue][0]))) {
+        if (!(newData[searchValue] && newData[searchValue][0] && item === currentItem)) {
+            this.setState({
+                loading: true
+            })
             service.get('https://api.sou-yun.com/api/poem', {
                 key: searchValue,
-                scope: item,
+                scope: currentItem,
                 pageNo: 0,
                 jsonType: true
             }).then((response) => {
                 //无数据
                 if (response === null) {
-                    return (
-                        Alert.alert('',
-                            '无更多数据'
-                        )
+                    Alert.alert('',
+                        '无更多数据',
+                        [
+                            {text: '确定'}
+                        ]
                     )
+                    this.setState({
+                        loading: false
+                    })
                 }
                 if (response.ShiData && response.ShiData.length > 0) {
                     if (newData && newData[searchValue]) {
@@ -57,11 +68,16 @@ class Search extends Component {
                         newData[searchValue] = [];
                         newData[searchValue][0] = response;
                     }
+                    this.setState({
+                        loading: false
+                    })
+
                     const {actionCreate, dispatch} = this.props;
                     dispatch(actionCreate('SET_POETRY_DATA', {
                         data: newData,
                         currentPage: 0,
-                        currentStartPage: 0
+                        currentStartPage: 0,
+                        item: currentItem
                     }));
 
                     const navigateAction = NavigationActions.navigate({
@@ -72,7 +88,25 @@ class Search extends Component {
                     });
                     this.props.navigation.dispatch(navigateAction);
                 }
+            }).catch((err) => {
+                Alert.alert('',
+                    '无数据',
+                    [
+                        {text: '确定'}
+                    ]
+                )
+                this.setState({
+                    loading: false
+                })
+            })
+        }else if(newData[searchValue] && newData[searchValue][0] && item === currentItem){
+            const navigateAction = NavigationActions.navigate({
+                routeName: 'Result',
+                params: {
+                    searchValue: searchValue
+                }
             });
+            this.props.navigation.dispatch(navigateAction);
         }
     }
 
@@ -81,10 +115,8 @@ class Search extends Component {
      */
     showData = () => {
         const {store: {poetry: {searchValue, item}}} = this.props.store;
-        console.log(searchValue, item);
         if (searchValue) {
             if (!this.props.onGetData) {
-                console.log('跳转');
                 const navigateAction = NavigationActions.navigate({
                     routeName: 'Result',
                     params: {
@@ -105,15 +137,22 @@ class Search extends Component {
      * @returns {*}
      */
     onSelectedItemChange = (id) => {
-        const {actionCreate, dispatch} = this.props;
-        let searchItem = String(id);
-        dispatch(actionCreate('SET_POETRY_SEARCH_ITEM', searchItem));
+        this.setState({
+            item: String(id)
+        })
+        // const {actionCreate, dispatch} = this.props;
+        // let searchItem = String(id);
+        // dispatch(actionCreate('SET_POETRY_SEARCH_ITEM', searchItem));
     }
 
     render() {
         const {store: {poetry: {searchValue, item}}} = this.props.store;
         return (
             <View style={styles.container}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <View style={styles.search}>
                     <TextInput
                         placeholder='请输入想查询的关键字'

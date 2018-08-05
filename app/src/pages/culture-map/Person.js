@@ -8,7 +8,9 @@ import {
     Text,
     Image,
     ScrollView,
-    TouchableOpacity
+    TouchableOpacity,
+    Alert,
+    ImageBackground
 } from 'react-native';
 import Dimensions from 'Dimensions';
 import { service } from '../../utils/service';
@@ -17,6 +19,7 @@ import {
     actionCreate
 } from "../../redux/reducer";
 import {NavigationActions} from "react-navigation";
+import Loading from '../../utils/Loading';
 
 type Props = {};
 class Person extends Component<Props> {
@@ -31,7 +34,8 @@ class Person extends Component<Props> {
             name: props.navigation && props.navigation.state && props.navigation.state.params && props.navigation.state.params.name || {},
             friends: [],
             more: false,
-            workMore: false
+            workMore: false,
+            loading: false
         };
         this.screenWidth = Dimensions.get('window').width;
         this.screenHeight =  Dimensions.get('window').height;
@@ -43,7 +47,9 @@ class Person extends Component<Props> {
         }
         this.setState({
             point: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.point || {},
-            name: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.name || {}
+            name: nextProps.navigation && nextProps.navigation.state && nextProps.navigation.state.params && nextProps.navigation.state.params.name || {},
+            works: [],
+            workMore: false
         })
     }
 
@@ -60,7 +66,7 @@ class Person extends Component<Props> {
                 if(person.name && Array.isArray(person.name) && person.name.length !== 0){
                     person.name.forEach(item=>{
                         if(item['@language'] === 'chs'){
-                            this.state.dataMap.set(item['@value'], person);
+                            this.state.dataMap[item['@value']] = person;
                         }
                     })
 
@@ -114,10 +120,10 @@ class Person extends Component<Props> {
                                 })
                             }
                         })
-
+                        dataMap[uri] =  response;
+                        dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
                     }
-                    dataMap[uri] =  response;
-                    dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
+
                 });
             });
         }else if(friendOf){
@@ -138,9 +144,10 @@ class Person extends Component<Props> {
                     })
 
                 }
-                dataMap.set(friendOf, response);
+                dataMap[friendOf] = response;
                 dispatch(actionCreate('SET_POINT_DETAIL', dataMap ));
             });
+
         }else {
             this.setState({
                 friends: []
@@ -194,25 +201,58 @@ class Person extends Component<Props> {
      */
     getWork = (e, creatorOf) => {
         let works = [];
-        if(creatorOf && Array.isArray(creatorOf)){
-            creatorOf.forEach((item,index)=>{
-                service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
-                    if(response){
-                        works.push(response);
-                        if(works.length === creatorOf.length){
+        if(!this.state.workMore){
+            if(creatorOf && Array.isArray(creatorOf)){
+                creatorOf.forEach((item,index)=>{
+                    service.get('http://data1.library.sh.cn/data/jsonld', {uri: item, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                        this.setState({
+                            loading: true
+                        })
+                        if(response === null){
+                            Alert.alert('',
+                                '无数据o(╥﹏╥)o',
+                                [
+                                    {text: '确定'}
+                                ]
+                            )
                             this.setState({
-                                works: works,
-                                workMore: !this.state.workMore
+                                loading: falses
                             })
                         }
-                    }
-                });
-            })
-        }else{
-            // console.log('creatorOf', creatorOf);
-        }
-        // console.log('this.works', works);
+                        if(response){
+                            works.push(response);
+                            if(works.length === creatorOf.length){
+                                this.setState({
+                                    works: works,
+                                    workMore: !this.state.workMore,
+                                    loading: false
+                                })
+                            }
+                        }
 
+                    });
+                })
+            }else{
+                service.get('http://data1.library.sh.cn/data/jsonld', {uri: creatorOf, key: '3ca4783b2aa237d1a8f2fae0cd36718dae8dac3e'}).then((response)=>{
+                    if(response === null){
+                        Alert.alert('',
+                            '无数据o(╥﹏╥)o',
+                            [
+                                {text: '确定'}
+                            ]
+                        )
+                    }
+                    if(response){
+                        works = response;
+                        this.setState({
+                            works: works,
+                            workMore: !this.state.workMore
+                        })
+                    }
+
+                });
+            }
+        }
     }
 
     /**
@@ -236,14 +276,16 @@ class Person extends Component<Props> {
 
     render() {
         const { name, point } = this.state;
-        // console.log('this.props', this.props);
-        // console.log('this.state', this.state);
 
         const { store } = this.props.store;
         const { culture } = store;
-        // console.log('culture', culture, point);
         return (
-            <View style={{ marginBottom: 40 }}>
+            <ImageBackground  source={require('../../images/poetry-bg-2.jpg')}
+                              style={{width: screenWidth, height: screenHeight, marginBottom: 40}}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <View  style={styles.header}>
                     <Text style={styles.name}>
                         {name}
@@ -290,16 +332,19 @@ class Person extends Component<Props> {
                         this.state.friends && this.state.friends.length !== 0 ?
                             <View>
                                 <Text style={styles.title}>好友列表</Text>
-                                {
-                                    this.state.friends
-                                }
+                                <View style={{padding: 8}}>
+                                    {
+                                        this.state.friends
+                                    }
+                                </View>
+
                             </View> : null
                     }
                     {
                         point.creatorOf ?
                             <View style={{paddingBottom: 40}}>
                                 <TouchableOpacity onPress={e=>this.getWork(e, point.creatorOf)}>
-                                    <Text style={styles.title}>{this.state.workMore ? '收起作品列表' : '打开作品列表'}</Text>
+                                    <Text style={styles.title}>获取作品列表</Text>
                                 </TouchableOpacity>
 
                                 <View  style={!this.state.workMore ? styles.workList : styles.more_workList}>
@@ -308,9 +353,7 @@ class Person extends Component<Props> {
                             </View> : null
                     }
                 </ScrollView>
-            </View>
-
-
+            </ImageBackground>
         );
     }
 }
@@ -350,19 +393,25 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     content: {
-        width: this.screenWidth,
-        height: 66
+        // borderColor: '#ccc',
+        // borderWidth: 1,
+        // width: screenWidth,
+        padding: 5,
+        height: 78
     },
     more_content: {
-        width: this.screenWidth,
+        // borderColor: '#ccc',
+        // borderWidth: 1,
+        // width: screenWidth,
+        padding: 5
     },
     workList: {
-        width: this.screenWidth,
-        height: 0,
+        width: screenWidth,
+        height: 300,
         padding: 8
     },
     more_workList: {
-        width: this.screenWidth,
+        width: screenWidth,
         padding: 8
     },
     title: {

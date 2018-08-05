@@ -11,17 +11,16 @@ import {
     Button,
     ImageBackground, Alert
 } from 'react-native';
-import PopupDialog from 'react-native-popup-dialog';
 import {service} from "../../utils/service";
 import {NavigationActions} from "react-navigation";
 import Dimensions from 'Dimensions';
-import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
+import Loading from '../../utils/Loading';
 
-import { transFun } from '../../utils/fontTransform';
+import {transFun} from '../../utils/fontTransform';
 
-const { toSim, toFan } = transFun;
+const {toSim, toFan} = transFun;
 
 class Commend extends Component {
     static navigationOptions = {
@@ -36,37 +35,54 @@ class Commend extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentData: {}
+            currentData: {},
+            loading: false
         };
         this.currentData = {};
+        this.jieqiRecent = '';
     }
 
     getData = () => {
+        this.state.loading = true;
         service.get('https://www.sojson.com/open/api/lunar/json.shtml').then((response) => {
             if (response && response.message === 'success') {
                 let month = response.data.month;
                 let day = response.data.day;
                 let jieqi = response.data.jieqi;
-                let jieqiRecent = '';
                 let cha = 40;
-                for(let key in jieqi){
+                for (let key in jieqi) {
                     let item = jieqi[key];
-                    if(Math.abs(day-key)<cha){
-                        jieqiRecent = item;
-                         cha = Math.abs(day-key);
+                    if (Math.abs(day - key) < cha) {
+                        this.jieqiRecent = item;
+                        cha = Math.abs(day - key);
                     }
                 }
-                let currentPoetry = data[jieqiRecent];
-                let index = Math.ceil(Math.random()*(currentPoetry.length-1));
+                let currentPoetry = data[this.jieqiRecent];
+                let index = Math.ceil(Math.random() * (currentPoetry.length - 1));
                 let keyTitle = currentPoetry[index];
-                service.get('https://api.sou-yun.com/api/poem', {key: keyTitle, scope: 2, jsonType: true}).then((response) => {
+                service.get('https://api.sou-yun.com/api/poem', {
+                    key: keyTitle,
+                    scope: 2,
+                    jsonType: true
+                }).then((response) => {
                     if (response.ShiData && response.ShiData.length > 0) {
                         this.setState({
-                            currentData: response.ShiData[0]
+                            currentData: response.ShiData[0],
+                            loading: false
                         })
                         // this.currentData = response.ShiData[0];
                     }
                 });
+            }else{
+                Alert.alert('',
+                    '数据请求失败o(╥﹏╥)o',
+                    [
+                        {text: '确定'}
+                    ]
+                );
+                this.setState({
+                    loading: false
+                })
             }
         });
     }
@@ -77,34 +93,111 @@ class Commend extends Component {
 
     componentWillReceiveProps(nextProps) {
     }
+
     /**
      * 前往主页
      */
     goToHome = () => {
         const navigateAction = NavigationActions.navigate({
             routeName: 'Home',
-            params: {
-
-            }
+            params: {}
         });
         this.props.navigation.dispatch(navigateAction);
     }
 
+    /**
+     * 跳转到作者详情页
+     */
+    goToAuthorResult = (author) => {
+
+        // const {actionCreate, dispatch} = this.props;
+        // dispatch(actionCreate('SET_POETRY_SEARCH_VALUE_ITEM', {
+        //     searchValue: author,
+        //     item: 'author'
+        // }));
+
+        let searchValue = author;
+        const {store: {poetry: {data}}} = this.props.store;
+
+        let newData = Object.assign({}, data);
+
+        if (!(newData[searchValue] && newData[searchValue][0])) {
+            this.setState({
+                loading: true
+            })
+            service.get('https://api.sou-yun.com/api/poem', {
+                key: author,
+                scope: 2,
+                pageNo: 0,
+                jsonType: true
+            }).then((response) => {
+                //无数据
+                if (response === null) {
+                    Alert.alert('',
+                        '无更多数据',
+                        [
+                            {text: '确定'}
+                        ]
+                    );
+                    this.setState({
+                        loading: false
+                    })
+                }
+                if (response.ShiData && response.ShiData.length > 0) {
+                    if (newData && newData[searchValue]) {
+                        newData[searchValue][0] = response;
+                    } else if (newData && !newData[searchValue]) {
+                        newData[searchValue] = [];
+                        newData[searchValue][0] = response;
+                    }
+                    const {actionCreate, dispatch} = this.props;
+                    dispatch(actionCreate('SET_POETRY_DATA', {
+                        data: newData,
+                        currentPage: 0,
+                        currentStartPage: 0,
+                        searchValue: author,
+                        item: 'author'
+                    }));
+
+                    this.setState({
+                        loading: false
+                    })
+
+                    const navigateAction = NavigationActions.navigate({
+                        routeName: 'Result',
+                        params: {
+                            searchValue: searchValue
+                        }
+                    });
+                    this.props.navigation.dispatch(navigateAction);
+                }
+            });
+        } else if (newData[searchValue] && newData[searchValue][0]) {
+            const navigateAction = NavigationActions.navigate({
+                routeName: 'Result',
+                params: {
+                    searchValue: searchValue
+                }
+            });
+            this.props.navigation.dispatch(navigateAction);
+        }
+    }
+
     render() {
-        let id = '', title = '', subTitle = '', preface = '', content = '', author ='', dynasty = '';
-        const { currentData } = this.state;
-        if(currentData){
+        let id = '', title = '', subTitle = '', preface = '', content = '', author = '', dynasty = '';
+        const {currentData} = this.state;
+        if (currentData) {
             id = currentData.Id || '';
             title = currentData.Title && toSim(currentData.Title.Content) || '';
-            subTitle = currentData.SubTitle && toSim(currentData.SubTitle.Content )|| '';
+            subTitle = currentData.SubTitle && toSim(currentData.SubTitle.Content) || '';
             author = toSim(currentData.Author) || '';
-            preface = toSim(currentData.Preface) || '' ;
+            preface = toSim(currentData.Preface) || '';
             dynasty = toSim(currentData.Dynasty) || '';
-            if(currentData.Clauses && currentData.Clauses.length>0){
-                currentData.Clauses.forEach((item,index)=>{
-                    if(index%2 === 1){
+            if (currentData.Clauses && currentData.Clauses.length > 0) {
+                currentData.Clauses.forEach((item, index) => {
+                    if (index % 2 === 1) {
                         content += toSim(item.Content) + '\n';
-                    }else{
+                    } else {
                         content += toSim(item.Content);
                     }
 
@@ -114,29 +207,111 @@ class Commend extends Component {
         return (
             <ImageBackground source={require('../../images/gamebg3.jpeg')}
                              style={{width: screenWidth, height: screenHeight}}>
-                <TouchableOpacity onPress={this.goToHome}>
-                    <Text style={{width: 360, textAlign: 'right', color: '#f00', padding: 10, fontSize:18, fontFamily: '华文行楷', textDecorationLine: 'underline'}}>
-                        跳过
-                    </Text>
-                </TouchableOpacity>
-                {id ?
-                    <ScrollView style={styles.bodyContainer}>
-                        <View style={styles.container}>
-                            <Text style={styles.allTitle}>
-                                {title}{subTitle ? `·${subTitle}` : ''}
-                            </Text>
-                            <Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>
-                            { preface ? <Text style={styles.preface}>{preface}</Text> : null }
-                            <Text style={styles.content}>{content}</Text>
-                        </View>
-                    </ScrollView>
-                : null}
+
+                {/*<View style={styles.wrap}>*/}
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
+                    {
+                        this.jieqiRecent ?
+                            <View style={{width: screenWidth, flexDirection: 'row-reverse', height: 90, padding: 5}}>
+                                <View style={{width: 52, height: 82, padding: 5, borderColor: '#ccc', borderWidth: 1, margin: 30}}>
+                                    <Text style={{
+                                        fontSize: 30,
+                                        fontFamily: '华文行楷',
+                                        width: 40,
+                                        height: 70,
+                                        padding: 5,
+                                        borderColor: '#ccc',
+                                        borderWidth: 1
+                                    }}>
+                                        {this.jieqiRecent}
+                                    </Text>
+                                </View>
+                            </View>
+                            : null
+                    }
+
+                    {/*{id ?*/}
+                    {/*<ScrollView style={styles.bodyContainer}>*/}
+                    {/*<View style={styles.container}>*/}
+                    {/*<Text style={styles.allTitle}>*/}
+                    {/*{title}{subTitle ? `·${subTitle}` : ''}*/}
+                    {/*</Text>*/}
+                    {/*<Text style={{ marginTop: 5 }}>{dynasty ? `[${dynasty}]` : ''}  {author}</Text>*/}
+                    {/*{ preface ? <Text style={styles.preface}>{preface}</Text> : null }*/}
+                    {/*<Text style={styles.content}>{content}</Text>*/}
+                    {/*</View>*/}
+                    {/*</ScrollView>*/}
+                    {/*: null}*/}
+                    {
+                        id ?
+                            <ScrollView style={styles.bodyContainer}>
+                                <View style={styles.container}>
+                                    <Text style={styles.allTitle}>
+                                        {title}{subTitle ? `·${subTitle}` : ''}
+                                    </Text>
+                                    <View style={{flexDirection: 'row', marginTop: 5}}>
+                                        {
+                                            dynasty ? <Text style={{fontSize: 12}}>[</Text> : null
+                                        }
+                                        {
+                                            dynasty ?
+                                                <Text style={{fontFamily: '华文行楷', fontSize: 16}}>{dynasty}</Text> : null
+                                        }
+                                        {
+                                            dynasty ? <Text style={{fontSize: 12}}>]</Text> : null
+                                        }
+                                        {
+                                            author && author !== '阙名' ?
+                                                <TouchableOpacity
+                                                    onPress={e => this.goToAuthorResult(String(currentData.Author), e)}>
+                                                    <Text style={{
+                                                        textDecorationLine: 'underline',
+                                                        marginLeft: 3,
+                                                        fontFamily: '华文行楷',
+                                                        fontSize: 16
+                                                    }}>
+                                                        {author}
+                                                    </Text>
+                                                </TouchableOpacity> : null
+                                        }
+
+                                    </View>
+
+                                    {preface ? <Text style={styles.preface}>{preface}</Text> : null}
+                                    <Text style={styles.content}>{content}</Text>
+                                </View>
+                            </ScrollView> : null
+                    }
+                {/*</View>*/}
+
 
             </ImageBackground>
+
+
         )
     }
 }
 
+{/*<ImageBackground source={require('../../images/gamebg.png')}*/
+}
+{/*style={{width: screenWidth, height: screenHeight}}>*/
+}
+{/*<TouchableOpacity onPress={this.goToHome}>*/
+}
+{/*<Text style={{width: 360, textAlign: 'right', color: '#f00', padding: 10, fontSize:18, fontFamily: '华文行楷', textDecorationLine: 'underline'}}>*/
+}
+{/*跳过*/
+}
+{/*</Text>*/
+}
+{/*</TouchableOpacity>*/
+}
+
+
+// </ImageBackground>
 function mapStateToProps(state) {
     return {
         store: state // gives our component access to state through props.toDoApp
@@ -160,7 +335,7 @@ const screenHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
     wrap: {
-        alignItems:'center',
+        alignItems: 'center',
         backgroundColor: '#fff',
         height: screenHeight,
     },
@@ -172,70 +347,72 @@ const styles = StyleSheet.create({
     bodyContainer: {
         width: screenWidth,
         padding: 0,
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
     },
     container: {
         width: screenWidth,
-        paddingTop: 30,
-        alignItems:'center',
+        paddingTop: 50,
+        alignItems: 'center',
         backgroundColor: 'transparent'
     },
     allTitle: {
         marginTop: 10,
-        fontSize: 24,
+        fontSize: 30,
         width: 300,
-        textAlign: 'center'
+        textAlign: 'center',
+        fontFamily: '华文行楷'
     },
     title: {
         fontSize: 20,
         width: 100,
-        borderColor:"black",
-        borderWidth:1,
+        borderColor: "black",
+        borderWidth: 1,
     },
     preface: {
-        width: screenWidth-60,
+        width: screenWidth - 60,
         padding: 3,
         marginTop: 10,
         color: '#f00',
         borderRadius: 5,
         backgroundColor: '#faf1cf',
         fontSize: 12,
-        lineHeight:18
+        lineHeight: 18
     },
     content: {
         marginTop: 10,
-        lineHeight:28,
-        fontSize: 16,
+        lineHeight: 28,
+        fontSize: 18,
+        fontFamily: '华文行楷'
     },
-    myContainer:{
-        marginTop:30,
-        flexDirection:"row",
+    myContainer: {
+        marginTop: 30,
+        flexDirection: "row",
     },
-    inputStyle:{
-        width:280,
-        height:40,
-        borderColor:"black",
-        borderWidth:1,
-        marginLeft:5,
+    inputStyle: {
+        width: 280,
+        height: 40,
+        borderColor: "black",
+        borderWidth: 1,
+        marginLeft: 5,
         fontSize: 12,
         fontFamily: '华文行楷'
     },
-    btn:{
-        width:85,
-        height:30,
-        justifyContent:"center",
-        alignItems:"center",
-        backgroundColor:"green",
+    btn: {
+        width: 85,
+        height: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "green",
     },
-    wordC:{
-        color:"white",
-        fontSize:18,
+    wordC: {
+        color: "white",
+        fontSize: 18,
         fontFamily: '华文行楷'
     }
 });
 
 const data = {
-    '立春': ['咏柳', '木兰花立春日作', '京中正月七日立春','立春日酬钱员外曲江同行见赠','立春日游苑迎春','立春偶成'],
+    '立春': ['咏柳', '木兰花立春日作', '京中正月七日立春', '立春日酬钱员外曲江同行见赠', '立春日游苑迎春', '立春偶成'],
     '雨水': ['春夜喜雨', '早春呈水部张十八员外', '初春小雨', '夜雨寄北', '春雨', '临安春雨初霁'],
     '惊蛰': ['拟古仲春遘时雨', '走笔谢孟谏议寄新茶', '观田家', '义雀行和朱评事'],
     '春分': ['春日', '踏莎行', '赠范晔', '春分投简阳明洞天作', '春分与诸公同宴呈陆三十四郎中', '无梦令龙阳观春分其间作', '蝶恋花', '画堂春'],

@@ -71,7 +71,7 @@ class Poetry extends Component {
                     timeContainerStyle={{minWidth: 52}}
                     timeStyle={{
                         textAlign: 'center',
-                        // width: 60,
+                        width: 60,
                         // backgroundColor: '#ff9797',
                         backgroundColor: '#f3dc99',
                         color: 'white',

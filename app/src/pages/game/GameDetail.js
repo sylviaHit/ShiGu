@@ -19,6 +19,7 @@ import Carousel from 'react-native-snap-carousel';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
 import { transFun } from '../../utils/fontTransform';
+import Loading from '../../utils/Loading';
 
 const { toSim, toFan } = transFun;
 
@@ -35,10 +36,11 @@ class GameDetail extends Component {
             keyWords: '人',
             text: '',
             data: [],
-            sentences: []
+            sentences: [],
+            loading: false
         };
         this.data = [];
-        this.successLength = 2;
+        this.successLength = 5;
         this.flag = false;
     }
 
@@ -89,30 +91,24 @@ class GameDetail extends Component {
             this.flag = false;
             this.poem = {};
 
-            console.log(toFan, toSim);
-            console.log(toFan(this.state.text));
             let newKeyWord = toFan(this.state.text);
 
-
-
             if(this.state.sentences.indexOf(this.state.text) === -1){
+                this.setState({
+                    loading: true
+                })
                 service.get('https://api.sou-yun.com/api/poem', {key: newKeyWord, scope: 3, jsonType: true}).then((response) => {
-                    console.log(response, this.state.text.indexOf(keyWord) !== -1);
                     if (response && response.ShiData && response.ShiData.length > 0 && this.state.text.indexOf(keyWord) !== -1) {
-                        console.log(response, '111111111', response.ShiData);
                         for(let i=0;i<response.ShiData.length;i++){
                             let item = response.ShiData[i];
-                            console.log(item, 'item');
                             if(this.flag === true){
                                 break;
                             }
                             if(item.Clauses && Array.isArray(item.Clauses)){
                                 for(let j=0;j<item.Clauses.length;j++){
                                     let _item = item.Clauses[j];
-                                    console.log(_item,  _item.Content.substring(0, _item.Content.length-1), newKeyWord, newKeyWord === _item.Content.substring(0, _item.Content.length-1));
 
                                     if(newKeyWord === _item.Content.substring(0, _item.Content.length-1)){
-                                        console.log(_item, '_item', this.state.text, '2222222');
                                         this.flag = true;
                                         this.poem = item;
                                         break;
@@ -120,7 +116,6 @@ class GameDetail extends Component {
                                 }
                             }
                         }
-                        console.log(this.flag);
 
                         if(this.flag === true){
                             this.successJudge();
@@ -132,6 +127,9 @@ class GameDetail extends Component {
                                 ]
                             )
                         }
+                        this.setState({
+                            loading: false
+                        })
                     }else {
                         Alert.alert('',
                             '行令失败o(╥﹏╥)o 请输入正确诗句！',
@@ -139,6 +137,9 @@ class GameDetail extends Component {
                                 {text: '确定'}
                             ]
                         )
+                        this.setState({
+                            loading: false
+                        })
                     }
                 });
             }else{
@@ -312,7 +313,6 @@ class GameDetail extends Component {
      * 跳转到诗词详情页
      */
     goToPoemDetail = (e, item) => {
-        console.log('----------', item);
         const navigateAction = NavigationActions.navigate({
             routeName: 'PoemDetail',
             params: {
@@ -324,19 +324,16 @@ class GameDetail extends Component {
     }
 
     render() {
-        console.log('this.props-------------', this.props);
         const { store } = this.props.store || store;
         const { state: { params: { index } } } = this.props.navigation;
-        // if(store && store.game && !store.game.mention){
-        //     // alert('游戏规则：sfdsfas');
-        //     this.popupDialog.show();
-        // }sss
-        // if()
         const { store: { game: { keyWords, blockade } } } = this.props.store;
         let keyWord = keyWords[index];
-        // console.log('index', index, keyWord);
         return (
             <ImageBackground source={srcs[index]} style={{ alignItems:'center',width: screenWidth,height: screenHeight}}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <View style={styles.keyWordsContainer}>
                     <Text style={styles.keyWords}>{keyWord}</Text>
                 </View>

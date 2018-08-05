@@ -22,6 +22,7 @@ import Carousel from 'react-native-snap-carousel';
 
 import Dimensions from 'Dimensions';
 import {service} from "../../utils/service";
+import Loading from '../../utils/Loading';
 
 class CultureMap extends Component {
 
@@ -45,7 +46,8 @@ class CultureMap extends Component {
         super(props);
         this.state = {
             currentIndex: 4,
-            data: []
+            data: [],
+            loading: false
         };
 
         this.screenWidth = Dimensions.get('window').width;
@@ -91,16 +93,31 @@ class CultureMap extends Component {
 
     componentWillMount() {
         // const { store, actionCreate, dispatch } = this.props;
+        this.state.loading = true;
         service.post('http://data.library.sh.cn/wkl/webapi/building/dolist',{ freetext: ''}).then((data)=>{
+            if(data){
                 data.detail.map((item,index)=>{
                     item.src = this.srcs[index];
                     return item;
                 });
 
-            // dispatch(actionCreate('SET_POINT_DETAIL', data ));
+                // dispatch(actionCreate('SET_POINT_DETAIL', data ));
                 this.setState({
-                    data: data.detail
+                    data: data.detail,
+                    loading: false
                 })
+            }else{
+                Alert.alert('',
+                    '数据请求失败o(╥﹏╥)o',
+                    [
+                        {text: '确定'}
+                    ]
+                );
+                this.setState({
+                    loading: false
+                })
+            }
+
             }
         );
     }
@@ -153,14 +170,13 @@ class CultureMap extends Component {
                         // )}
                     >
                         <View style={styles.customMarker}>
-                            <Text style={styles.markerText}> { item.name || '' } </Text>
+                            {/*<Text style={styles.markerText}> { item.name || '' } </Text>*/}
                         </View>
                     </MapView.Marker>
 
                 )
             });
         }
-        // console.log('markers', markers);
         return markers;
     }
 
@@ -188,6 +204,10 @@ class CultureMap extends Component {
         }
         return (
             <View style={styles.wrap}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <MapView
                     style={styles.map}
                     coordinate={coordinate}
@@ -262,9 +282,10 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     customMarker: {
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
         alignItems: 'center',
         borderRadius: 5,
+        borderColor: 'transparent',
         padding: 5,
     },
     markerText: {

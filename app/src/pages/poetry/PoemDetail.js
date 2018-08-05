@@ -131,7 +131,7 @@ class PoemDetail extends Component {
         const {store: {poetry: { data}}} = this.props.store;
 
         let newData = Object.assign({}, data);
-        console.log('newData' , newData, newData[searchValue]);
+        // console.log('newData' , newData, newData[searchValue]);
 
         if (!(newData[searchValue] && newData[searchValue][0])) {
             service.get('https://api.sou-yun.com/api/poem', {
@@ -152,7 +152,7 @@ class PoemDetail extends Component {
                     )
                 }
                 if (response.ShiData && response.ShiData.length > 0) {
-                    console.log('response' , response);
+                    // console.log('response' , response);
                     if (newData && newData[searchValue]) {
                         newData[searchValue][0] = response;
                     } else if (newData && !newData[searchValue]) {
@@ -178,7 +178,7 @@ class PoemDetail extends Component {
                 }
             });
         }else if(newData[searchValue] && newData[searchValue][0]){
-            console.log('222');
+            // console.log('222');
             const navigateAction = NavigationActions.navigate({
                 routeName: 'Result',
                 params: {

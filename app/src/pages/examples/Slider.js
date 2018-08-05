@@ -35,7 +35,7 @@ export default class SliderEntry extends Component {
     }
 
     render () {
-        console.log('this.props', this.props);
+        // console.log('this.props', this.props);
         // const { data: { title, subtitle }, even } = this.props;
         const { data, even } = this.props;
         let title = 'title';

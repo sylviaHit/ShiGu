@@ -13,7 +13,7 @@ export const service = {
             param = param.substring(0,param.length-1);
             url = `${url}?${param}`;
         }
-
+        // console.log('params', params);
         return new Promise(function (resolve, reject) {
             // console.log('response11--------------');
             fetch(url, {
@@ -21,7 +21,7 @@ export const service = {
                 headers: headers,
             })
                 .then((response) => {
-                    // console.log('response11', response);
+                    // console.log('response22222222', response);
                     if (response.ok) {
                         return response.json();
                     } else {
@@ -33,13 +33,12 @@ export const service = {
                     resolve(response);
                 })
                 .catch((err) => {
-                    console.log('err', err);
                     reject({status: -1});
                 })
         })
     },
     post: function (url, formData, headers) {
-        console.log('url', url, formData);
+        // console.log('url', url, formData);
         return new Promise(function (resolve, reject) {
             fetch(url, {
                 method: 'POST',

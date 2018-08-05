@@ -25,7 +25,7 @@ class HomePageTest3 extends Component{
     }
 
     render() {
-        let pages=['Poetry', 'Person', 'Game', 'WuKangRoad', 'Scene'];
+        let pages=['Poetry', 'Commend', 'Game', 'WuKangRoad', 'Scene'];
         let colors = [
             ['#f77695', '#dfe3e4', '#55236a'],
             ['#55843e', '#c5ffa9', '#7898b9'],
@@ -50,7 +50,7 @@ class HomePageTest3 extends Component{
                 </View>
                 <View style={styles.bottom}>
                     <View style={[styles.block, {left: 15, top:20}]}>
-                        <ImageBackground source={require('../../images/book7.jpg')} style={{width: 78,height: 78}}/>
+                        <ImageBackground source={require('../../images/gamebg.jpg')} style={{width: 78,height: 78}}/>
                     </View>
                     <View style={[styles.block, {left: 145, top:20, backgroundColor: '#f5f5f5'}]}>
                         <TouchableOpacity
@@ -60,12 +60,19 @@ class HomePageTest3 extends Component{
                         </TouchableOpacity>
                     </View>
                     <View style={[styles.block, {left: 80, top:85, backgroundColor: '#ececec'}]}>
-                        {/*<TouchableOpacity*/}
-                            {/*style={styles.blockTouch}*/}
-                            {/*onPress={() => {this.props.navigation.navigate(pages[1])}}>*/}
-                            {/*<Text style={styles.title}>人文</Text>*/}
-                        {/*</TouchableOpacity>*/}
-                        <ImageBackground source={require('../../images/gamebg.jpg')} style={{width: 78,height: 78}}/>
+                        <TouchableOpacity
+                            style={styles.blockTouch}
+                            onPress={() => {this.props.navigation.navigate(pages[1])}}>
+                            {/*<Text style={styles.title}>每日一荐</Text>*/}
+                            {/*<ImageBackground source={require('../../images/gamebg3.jpeg')} style={{width: 78,height: 78}}>*/}
+                                {/*<Text style={[styles.title, {fontSize: 24, position: 'absolute', top: 18, left: 6}]}>每日</Text>*/}
+                                {/*<Text style={[styles.title, {fontSize: 24, position: 'absolute', top: 34, left: 20}]}>一荐</Text>*/}
+                            {/*</ImageBackground>*/}
+                            <Text style={[styles.title, {fontSize: 24, position: 'absolute', top: 18, left: 6}]}>每日</Text>
+                            <Text style={[styles.title, {fontSize: 24, position: 'absolute', top: 34, left: 20}]}>一荐</Text>
+
+                        </TouchableOpacity>
+                        {/*<ImageBackground source={require('../../images/gamebg.jpg')} style={{width: 78,height: 78}}/>*/}
                     </View>
                     <View style={[styles.block, {left: 145, top:150}]}>
                         <ImageBackground source={require('../../images/book4.jpg')} style={{width: 78,height: 78}}/>
@@ -197,7 +204,7 @@ const styles = StyleSheet.create({
         height: 80
     },
     title: {
-        color: '#000',
+        color: '#666',
         transform: [{rotateZ:'-45deg'}],
         fontSize: 30,
         fontFamily: '华文行楷',

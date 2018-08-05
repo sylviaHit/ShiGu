@@ -15,6 +15,7 @@ import {NavigationActions} from "react-navigation";
 import Search from './Search';
 import {actionCreate} from "../../redux/reducer";
 import {connect} from "react-redux";
+import Loading from '../../utils/Loading';
 
 class SearchResult extends Component {
     static navigationOptions = {
@@ -31,7 +32,8 @@ class SearchResult extends Component {
             content: '',
             currentPage: 0,
             currentStartPage: 0,
-            data: {}
+            data: {},
+            loading: false
         }
     }
 
@@ -39,13 +41,12 @@ class SearchResult extends Component {
      }
 
     getData = (pageNo, currentStartPage) => {
-        console.log('pageNo', pageNo, 'currentStartPage', currentStartPage);
         const { store:{poetry : { searchValue, item, data }} } = this.props.store;
         pageNo = (pageNo !== undefined) ? pageNo : this.state.currentPage;
         currentStartPage = (currentStartPage !== undefined) ? currentStartPage : this.state.currentStartPage;
 
         let newData = Object.assign({}, data);
-        if(newData[searchValue] && newData[searchValue][pageNo] && Array.isArray(newData[searchValue][pageNo])){
+        if(newData[searchValue] && newData[searchValue][pageNo]){
             const { actionCreate, dispatch } = this.props;
             dispatch(actionCreate('SET_POETRY_DATA', {
                 data: newData,
@@ -53,15 +54,19 @@ class SearchResult extends Component {
                 currentStartPage: currentStartPage
             } ));
         }else{
+            this.setState({
+                loading: true
+            })
             service.get('https://api.sou-yun.com/api/poem', {key: searchValue, scope: item, pageNo: pageNo || 0, jsonType: true}).then((response) => {
 
                 //无数据
                 if(response === null){
-                    return (
-                        Alert.alert('',
-                            '无更多数据'
-                        )
+                    Alert.alert('',
+                        '无更多数据'
                     )
+                    this.setState({
+                        loading: false
+                    })
                 }
                 if (response.ShiData && response.ShiData.length > 0) {
                     if(newData && newData[searchValue]){
@@ -70,6 +75,10 @@ class SearchResult extends Component {
                         newData[searchValue] = [];
                         newData[searchValue][pageNo] = response;
                     }
+                    this.setState({
+                        loading: false
+                    })
+
                     const { actionCreate, dispatch } = this.props;
                     dispatch(actionCreate('SET_POETRY_DATA', {
                         data: newData,
@@ -105,11 +114,9 @@ class SearchResult extends Component {
     renderResult = () =>{
         let results = [];
         const { store:{poetry : { searchValue, item, data, currentPage }} } = this.props.store;
-        console.log('data', data, data[searchValue], data[searchValue] && data[searchValue][currentPage]);
 
         if(data && data[searchValue] && data[searchValue][currentPage]){
             const { ShiData } = data[searchValue][currentPage];
-            console.log('ShiData', ShiData);
 
             if(ShiData && Array.isArray(ShiData)){
                 ShiData.forEach((item,index)=>{
@@ -160,7 +167,6 @@ class SearchResult extends Component {
     }
 
     renderPagesBottom = () => {
-        console.log(this.props.navigation.state);
         let pages = [];
         const { store:{poetry : { searchValue, item, data, currentPage }} } = this.props.store;
         if(data && data[searchValue] && data[searchValue][currentPage]){
@@ -194,7 +200,6 @@ class SearchResult extends Component {
         for(let i=1;i<=5;i++){
             let style1 = styles.page;
             let style = currentStartPage+i-1 === currentPage ? {borderColor: '#fae25d'} : {borderColor: '#ccc'}
-            console.log(currentPage, currentStartPage);
             pages.push(
                 <TouchableOpacity key={i} onPress={e=>this.toPressPage(e, currentStartPage+i-1)}>
                     <Text style={[styles.page, style]}>{currentStartPage+i}</Text>
@@ -207,6 +212,10 @@ class SearchResult extends Component {
     render() {
         return (
             <View style={styles.container}>
+                {
+                    this.state.loading ?
+                        <Loading/> : null
+                }
                 <Search
                     navigation={this.props.navigation}
                     onChage={this.onChangeText}
